@@ -128,7 +128,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
 
-<<<<<<< HEAD
 # Where to go after a successful login
 LOGIN_REDIRECT_URL = 'dashboard_redirect' 
 
@@ -137,7 +136,3 @@ LOGOUT_REDIRECT_URL = 'login'
 
 # This tells @login_required where your login page is
 LOGIN_URL = 'login'
-=======
-LOGIN_REDIRECT_URL = 'dashboard_redirect'
-LOGOUT_REDIRECT_URL = 'login'
->>>>>>> 7247581955fcd05c6d8b4b9c7825a2737bef4bd5
