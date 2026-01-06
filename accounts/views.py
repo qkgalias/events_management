@@ -5,7 +5,7 @@ from .forms import CustomerRegistrationForm
 def signup(request):
     if request.method == 'POST':
         form = CustomerRegistrationForm(request.POST)
-        if form.is_status_valid():
+        if form.is_valid():
             user = form.save(commit=False)
             user.role = 'CUSTOMER'  # Force the role to Customer
             user.save()
