@@ -20,3 +20,14 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+
+from django.contrib import admin
+from django.urls import path, include
+from accounts.views import signup # Import the new signup view
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('accounts/signup/', signup, name='signup'), # New signup route
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('dashboard/', include('events.urls')),
+]
