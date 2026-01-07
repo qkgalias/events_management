@@ -35,7 +35,7 @@ source venv/bin/activate
 
 - Install the required framework and libraries:
  ```bash
-pip install django
+pip install -r requirements.txt
  ```
 
 ### Updating dependencies 
