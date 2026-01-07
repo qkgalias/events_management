@@ -46,12 +46,6 @@ pip install django
 pip freeze > requirements.txt
 ```
 
-### To run the file
-- To run the file, just run the `main.py`
-
-```bash
-python3 main.py
-```
 ### Database setup
 - Apply database migrations
 ```bash
