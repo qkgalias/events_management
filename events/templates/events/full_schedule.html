@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light scroll-smooth" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Full Schedule - TechHub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: "#359EFF", 
+                        "background-dark": "#0f1923",
+                        "text-main": "#0c101d",
+                        "text-muted": "#64748b"
+                    },
+                    fontFamily: { display: "Space Grotesk", body: ["Noto Sans", "sans-serif"] }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="{% static 'events/css/cstmr_dashb.css' %}">
+</head>
+
+<body class="bg-[#f5f7f8] antialiased font-body min-h-screen flex flex-col">
+
+    <nav id="main-nav" class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 h-20 flex items-center transition-all duration-500">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg">
+                    <span class="material-symbols-outlined text-xl">terminal</span>
+                </div>
+                <h1 class="font-display font-bold text-xl tracking-tight text-text-main">TechHub<span class="text-primary">.</span></h1>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                {% if user.is_authenticated %}
+                    <div class="hidden md:flex flex-col items-end">
+                        <span class="text-[10px] uppercase tracking-widest text-text-muted font-bold">Authenticated</span>
+                        <a href="{% url 'profile_dashboard' %}" class="text-sm font-bold text-text-main hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4 decoration-2">
+                            {{ user.username }}
+                        </a>
+                    </div>
+                    <form action="{% url 'logout' %}" method="post" class="flex items-center">
+                        {% csrf_token %}
+                        <button type="submit" class="flex items-center gap-1 text-red-500 font-bold text-sm hover:text-red-700 transition-colors">
+                            <span class="material-symbols-outlined text-sm">logout</span> Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-sm font-bold text-text-main hover:text-primary transition-colors">Login</a>
+                    <a href="{% url 'signup' %}" class="px-6 py-2 bg-primary text-white rounded-xl font-display font-bold text-sm shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2">
+                        Get Started <span class="material-symbols-outlined text-xs">rocket_launch</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 flex-grow w-full">
+        
+        <div class="mb-10">
+            <a href="{% url 'customer_dashboard' %}" 
+               class="group inline-flex items-center gap-2 text-sm font-bold text-text-muted hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <header class="mb-16 text-center max-w-2xl mx-auto">
+            <span class="text-primary font-bold text-[10px] tracking-[0.2em] uppercase mb-4 block">2026 Schedule</span>
+            <h1 class="font-display font-black text-5xl text-text-main mb-6">Explore All Seminars</h1>
+            <p class="text-text-muted text-lg">Use the filters below to find specific technical workshops and upcoming summits.</p>
+        </header>
+
+        <section class="mb-16 space-y-8">
+            <div class="max-w-xl mx-auto">
+                <form id="search-form" method="GET" action="{% url 'full_schedule' %}" class="relative flex items-center">
+                    <input type="text" 
+                           name="search" 
+                           id="search-input"
+                           value="{{ search_query }}"
+                           placeholder="Search by title or description..." 
+                           oninput="this.form.submit()" 
+                           class="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm pr-16"
+                           {% if search_query %} autofocus {% endif %}>
+                    <span class="material-symbols-outlined absolute right-6 text-gray-300">search</span>
+                </form>
+
+                {% if search_query or selected_category %}
+                <div class="flex justify-center mt-4">
+                    <a href="{% url 'full_schedule' %}" 
+                       onclick="localStorage.setItem('forceFocus', 'true')"
+                       class="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                        <span class="material-symbols-outlined text-sm">close</span> Clear All Filters
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2">
+                <a href="{% url 'full_schedule' %}" 
+                   class="px-5 py-2 rounded-full text-xs font-bold transition-all {% if not selected_category %}bg-primary text-white shadow-lg shadow-primary/20{% else %}bg-white border border-gray-200 text-text-muted hover:border-primary hover:text-primary{% endif %}">
+                    All Topics
+                </a>
+                {% for cat in categories %}
+                <a href="{% url 'full_schedule' %}?category={{ cat }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                   class="px-5 py-2 rounded-full text-xs font-bold transition-all {% if selected_category == cat %}bg-primary text-white shadow-lg shadow-primary/20{% else %}bg-white border border-gray-200 text-text-muted hover:border-primary hover:text-primary{% endif %}">
+                    {{ cat }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <div class="text-center text-xs font-bold text-text-muted uppercase tracking-widest">
+                {{ events.count }} seminar{{ events.count|pluralize }} found
+            </div>
+        </section>
+
+        <div class="space-y-6">
+            {% for event in events %}
+            <article class="relative flex flex-col md:flex-row bg-white rounded-3xl p-6 border border-gray-100 shadow-sm group transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
+                
+                {% if user.is_authenticated and event.id in registered_event_ids %}
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-green-500 rounded-l-3xl"></div>
+                {% endif %}
+
+                <div class="flex-shrink-0 flex md:flex-col items-center justify-center md:justify-start min-w-[100px] border-b md:border-b-0 md:border-r border-gray-100 pb-4 md:pb-0 md:pr-8 mb-4 md:mb-0 gap-2 md:gap-0">
+                    <div class="text-xs font-bold text-text-muted uppercase">{{ event.date|date:"M" }}</div>
+                    <div class="text-4xl font-black text-primary font-display leading-none">{{ event.date|date:"d" }}</div>
+                </div>
+
+                <div class="flex-1 md:px-8 text-center md:text-left">
+                    <div class="flex flex-wrap justify-center md:justify-start items-center gap-3 mb-2">
+                        <span class="text-blue-600 font-bold text-[10px] uppercase tracking-widest">{{ event.category }}</span>
+                        {% if user.is_authenticated and event.id in registered_event_ids %}
+                            <span class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-wider">
+                                <span class="material-symbols-outlined text-[14px]">verified</span> Enrolled
+                            </span>
+                        {% endif %}
+                    </div>
+                    <h3 class="font-display font-bold text-2xl text-text-main mb-2 group-hover:text-primary transition-colors">{{ event.title|capfirst }}</h3>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-text-muted">
+                        <span class="flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-sm text-primary">schedule</span> {{ event.time|time:"h:i A" }}</span>
+                        <span class="flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-sm text-primary">location_on</span> {{ event.location }}</span>
+                    </div>
+                </div>
+
+                <div class="flex-shrink-0 flex items-center justify-center mt-6 md:mt-0">
+                    <a href="{% url 'event_detail' event.id %}" class="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-primary transition-all shadow-lg flex items-center gap-2">
+                        Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+            </article>
+            {% empty %}
+            <div class="text-center py-40 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+                <span class="material-symbols-outlined text-6xl text-gray-200 mb-4">search_off</span>
+                <p class="text-text-muted font-medium">No seminars match your search or filters.</p>
+                <a href="{% url 'full_schedule' %}" onclick="localStorage.setItem('forceFocus', 'true')" class="text-primary font-bold hover:underline mt-2 inline-block">Reset filters</a>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer class="bg-background-dark text-white py-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center gap-6">
+            <p class="text-gray-500 text-xs tracking-widest uppercase font-display text-center">
+                © 2026 Advance Programming • TechHub. All rights reserved.
+            </p>
+            <a href="https://github.com/qkgalias/events_management" target="_blank" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+                <span class="text-[10px] font-bold tracking-tighter uppercase">View Repository</span>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                sessionStorage.setItem('searchActive', 'true');
+            });
+        }
+
+        window.onload = () => {
+            const isSearchActive = sessionStorage.getItem('searchActive');
+            const forceFocus = localStorage.getItem('forceFocus');
+
+            if (isSearchActive === 'true' || forceFocus === 'true') {
+                if (searchInput) {
+                    searchInput.focus();
+                    const val = searchInput.value;
+                    searchInput.setSelectionRange(val.length, val.length);
+                }
+                sessionStorage.removeItem('searchActive');
+                localStorage.removeItem('forceFocus');
+            }
+        };
+    </script>
+</body>
+</html>

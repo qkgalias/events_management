@@ -20,7 +20,8 @@
                     colors: {
                         primary: "#359EFF",
                         "background-light": "#f5f7f8",
-                        "text-dark": "#0c101d"
+                        "text-dark": "#0c101d",
+                        "text-muted": "#64748b"
                     },
                     fontFamily: {
                         display: "Space Grotesk",
@@ -124,8 +125,24 @@
         {% endfor %}
     {% endif %}
 
-    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-8 grid grid-cols-1 lg:grid-cols-12 relative">
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-x-8 gap-y-4 grid grid-cols-1 lg:grid-cols-12 relative">
         
+        <div class="lg:col-span-12 mb-2">
+            {% if origin == 'schedule' %}
+                <a href="{% url 'full_schedule' %}" 
+                   class="group inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                    Back to Schedule
+                </a>
+            {% else %}
+                <a href="{% url 'customer_dashboard' %}" 
+                   class="group inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                    Back to Dashboard
+                </a>
+            {% endif %}
+        </div>
+
         <div class="lg:col-span-8 flex flex-col gap-10">
             <div class="relative overflow-hidden rounded-3xl bg-white shadow-sm border border-slate-100 group">
                 <div class="relative h-[400px] w-full overflow-hidden">
@@ -213,7 +230,7 @@
                 <div class="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 text-center">
                     <div class="mb-8">
                         <p class="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Registration Fee</p>
-                        <h3 class="text-5xl font-black text-text-dark font-display">$0.00</h3>
+                        <h3 class="text-5xl font-black text-text-dark font-display">₱0.00</h3>
                         <p class="text-primary text-[10px] font-bold mt-2 uppercase tracking-tighter italic">Free for IT Students</p>
                     </div>
 
@@ -247,7 +264,7 @@
                     <div class="size-12 bg-white rounded-xl flex items-center justify-center text-primary shadow-sm font-bold font-display text-xl">TH</div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Organized by</p>
-                        <p class="font-bold text-sm text-text-dark">TechHub Global Hub</p>
+                        <p class="font-bold text-sm text-text-dark">TechHub Global</p>
                     </div>
                 </div>
             </div>
@@ -256,7 +273,7 @@
 
     <footer class="bg-white border-t border-slate-200 py-12 mt-20">
         <div class="max-w-7xl mx-auto px-6 text-center">
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">© 2026 TechHub Global Hub</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">© 2026 TechHub Global</p>
         </div>
     </footer>
 
