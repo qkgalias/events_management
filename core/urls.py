@@ -16,23 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# ONLY import views here in the urls.py file
-from events.views import dashboard_redirect
-from accounts.views import signup # signup lives in accounts/views.py
+from django.conf import settings
+from django.conf.urls.static import static
+from accounts.views import signup
 
 urlpatterns = [
+    # The root URL now points to the Events app, which is public
+    path('', include('events.urls')), 
     
     path('admin/', admin.site.urls),
-]
-
-from django.contrib import admin
-from django.urls import path, include
-from accounts.views import signup # Import the new signup view
-
-urlpatterns = [
-    path('', dashboard_redirect, name='home'),
-    path('admin/', admin.site.urls),
-    path('accounts/signup/', signup, name='signup'), # New signup route
+    path('accounts/signup/', signup, name='signup'),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('dashboard/', include('events.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>My Profile - TechHub</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: "#359EFF", "background-dark": "#0f1923", "background-light": "#f5f7f8" },
+                    fontFamily: { display: "Space Grotesk", body: "Noto Sans" }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-background-light font-body text-slate-900 min-h-screen flex flex-col">
+
+    <nav class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md px-6 py-4">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <a href="{% url 'customer_dashboard' %}" class="flex items-center gap-2 text-primary font-display font-bold text-xl">
+                <span class="material-symbols-outlined">event_note</span> TechHub
+            </a>
+            <a href="{% url 'customer_dashboard' %}" class="text-sm font-bold text-slate-500 hover:text-primary transition-colors">Back to Events</a>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-12 flex-1 w-full">
+        <section class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-12 flex flex-col md:flex-row items-center gap-8">
+            <div class="size-24 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-5xl">account_circle</span>
+            </div>
+            <div class="text-center md:text-left flex-1">
+                <h1 class="text-3xl font-black font-display tracking-tight">{{ user.username }}</h1>
+                <p class="text-slate-500">{{ user.email }}</p>
+                <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-500">Member Since {{ user.date_joined|date:"Y" }}</span>
+                    <span class="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-primary">Student Account</span>
+                </div>
+            </div>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="px-6 py-2 border border-red-100 text-red-500 rounded-xl font-bold text-sm hover:bg-red-50 transition-all">Logout</button>
+            </form>
+        </section>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl flex items-center gap-3 text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+                    <span class="material-symbols-outlined text-lg">check_circle</span> {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <section>
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-black font-display tracking-tight">My Registered Seminars</h2>
+                <span class="px-3 py-1 bg-slate-900 text-white text-[10px] font-bold rounded-full">{{ my_registrations.count }} Events</span>
+            </div>
+
+            <div class="grid gap-4">
+                {% for reg in my_registrations %}
+                <article class="relative bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all cursor-pointer">
+                    <div class="flex items-center gap-6">
+                        <div class="hidden sm:block size-14 rounded-xl overflow-hidden bg-slate-100">
+                            {% if reg.event.banner_image %}
+                                <img src="{{ reg.event.banner_image.url }}" class="w-full h-full object-cover">
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'event_detail' reg.event.id %}" class="font-bold text-lg group-hover:text-primary transition-colors after:absolute after:inset-0 after:z-10">
+                                {{ reg.event.title }}
+                            </a>
+                            <div class="flex items-center gap-4 mt-1 text-xs text-slate-400 font-medium">
+                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_month</span> {{ reg.event.date|date:"M d" }}</span>
+                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> {{ reg.event.location }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative z-30">
+                        <form action="{% url 'cancel_event' reg.id %}" method="post" onsubmit="return confirm('Are you sure you want to cancel this registration?');">
+                            {% csrf_token %}
+                            <button type="submit" class="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Cancel Registration">
+                                <span class="material-symbols-outlined">cancel</span>
+                            </button>
+                        </form>
+                    </div>
+                </article>
+                {% empty %}
+                <div class="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                    <span class="material-symbols-outlined text-5xl text-slate-300 mb-4">event_busy</span>
+                    <p class="text-slate-500 font-medium">You haven't registered for any events yet.</p>
+                    <a href="{% url 'customer_dashboard' %}" class="inline-block mt-4 text-primary font-bold hover:underline">Browse Events</a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-background-dark text-white py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center gap-6">
+            <p class="text-gray-500 text-xs tracking-widest uppercase font-display text-center">
+                © 2026 Advance Programming • TechHub. All rights reserved.
+            </p>
+            
+            <a href="https://github.com/qkgalias/events_management" 
+               target="_blank" 
+               class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-300 group">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="transition-transform group-hover:scale-110">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <span class="text-[10px] font-bold tracking-tighter uppercase">View Repository</span>
+            </a>
+        </div>
+    </footer>
+
+</body>
+</html>

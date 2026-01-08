@@ -1,0 +1,132 @@
+[
+  {
+    "model": "events.speaker",
+    "pk": 1,
+    "fields": {
+      "name": "Karlos Galias",
+      "role": "Cloud Solutions Architect",
+      "company": "SkyCloud Services",
+      "image": "speakers/karlos.jpeg"
+    }
+  },
+  {
+    "model": "events.speaker",
+    "pk": 2,
+    "fields": {
+      "name": "Dr. Irish Duque",
+      "role": "Chief Security Officer",
+      "company": "CyberGuard International",
+      "image": "speakers/irish.jpeg"
+    }
+  },
+  {
+    "model": "events.speaker",
+    "pk": 3,
+    "fields": {
+      "name": "Aaron Sabado",
+      "role": "Lead DevOps Engineer",
+      "company": "Nexus Systems",
+      "image": "speakers/aaron.jpeg"
+    }
+  },
+  {
+    "model": "events.speaker",
+    "pk": 4,
+    "fields": {
+      "name": "Liecha Isidto",
+      "role": "AI Research Scientist",
+      "company": "DeepMind Labs",
+      "image": "speakers/liecha.jpeg"
+    }
+  },
+  {
+    "model": "events.speaker",
+    "pk": 5,
+    "fields": {
+      "name": "Shael Yanto",
+      "role": "Full Stack Lead",
+      "company": "BuildRight.io",
+      "image": "speakers/shael.jpeg"
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 1,
+    "fields": {
+      "title": "Wicked Witch: The Zero Trust Era",
+      "category": "Cybersecurity",
+      "banner_image": "event_banners/wicked_witch.jpeg",
+      "description": "A deep dive into modern cybersecurity frameworks. This seminar explores how Zero Trust architectures are redefining network safety in 2026. Join us for a hands-on look at threat mitigation and identity management.",
+      "location": "Quezon City",
+      "date": "2026-01-31",
+      "time": "10:00:00",
+      "capacity": 25,
+      "speakers": [1, 2, 3],
+      "status": "Published"
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 3,
+    "fields": {
+      "title": "AI & Ethics: The 2026 Roadmap",
+      "category": "Data Science",
+      "banner_image": "event_banners/ai_ethics.jpeg",
+      "description": "Explore the intersection of artificial intelligence and societal impact. This seminar covers bias in machine learning models and the regulatory landscape for AI in the upcoming year.",
+      "location": "Manila",
+      "date": "2026-02-15",
+      "time": "14:00:00",
+      "capacity": 30,
+      "speakers": [4],
+      "status": "Published"
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 4,
+    "fields": {
+      "title": "Cloud-Native Infrastructure Summit",
+      "category": "IT Seminar",
+      "banner_image": "event_banners/cloud_summit.jpeg",
+      "description": "Mastering Kubernetes and Docker at scale. Join our cloud experts for a session on building resilient, scalable systems that can handle modern global traffic.",
+      "location": "Davao",
+      "date": "2026-03-10",
+      "time": "13:30:00",
+      "capacity": 40,
+      "speakers": [1, 3],
+      "status": "Published"
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 5,
+    "fields": {
+      "title": "Modern API Design with Django",
+      "category": "Web Development",
+      "banner_image": "event_banners/api_design.jpeg",
+      "description": "Learn the best practices for building secure and efficient RESTful APIs. This workshop focuses on Django Rest Framework, authentication strategies, and performance optimization.",
+      "location": "Makati",
+      "date": "2026-05-12",
+      "time": "11:00:00",
+      "capacity": 20,
+      "speakers": [5],
+      "status": "Published"
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 2,
+    "fields": {
+      "title": "Global Innovation Hackathon",
+      "category": "Web Development",
+      "banner_image": "event_banners/hackathon.jpeg",
+      "description": "Empowering students to build the next generation of web applications. Participants will have 48 hours to create solutions using Django, Tailwind CSS, and modern API integrations. Prizes for top innovators!",
+      "location": "Cebu City",
+      "date": "2026-04-02",
+      "time": "09:00:00",
+      "capacity": 50,
+      "speakers": [4, 5],
+      "status": "Published"
+    }
+  }
+]

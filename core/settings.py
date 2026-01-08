@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 
@@ -132,7 +132,14 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_REDIRECT_URL = 'dashboard_redirect' 
 
 # Where to go after logging out
-LOGOUT_REDIRECT_URL = 'login' 
+LOGOUT_REDIRECT_URL = 'customer_dashboard' 
 
 # This tells @login_required where your login page is
 LOGIN_URL = 'login'
+
+# MEDIA FILES CONFIGURATION
+# URL that handles the media served from MEDIA_ROOT
+MEDIA_URL = '/media/'
+
+# Absolute filesystem path to the directory that will hold user-uploaded files
+MEDIA_ROOT = BASE_DIR / 'media'

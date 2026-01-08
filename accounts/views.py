@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect 
+from django.contrib import messages
 from .forms import CustomerRegistrationForm
 
 # Create your views here.
@@ -8,7 +9,8 @@ def signup(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.role = 'CUSTOMER'  # Force the role to Customer
-            user.save()
+            user.save() # Save the user to the database
+            messages.success(request, f'Account created for {user.username}! You can now login.')
             return redirect('login')
     else:
         form = CustomerRegistrationForm()

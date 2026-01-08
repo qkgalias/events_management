@@ -5,5 +5,5 @@ from .models import User
 class CustomerRegistrationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        # We only ask for username; role is set automatically in the view
-        fields = ("username", "email")
+        # Includes base fields (username + passwords) and adds email
+        fields = UserCreationForm.Meta.fields + ("email",)

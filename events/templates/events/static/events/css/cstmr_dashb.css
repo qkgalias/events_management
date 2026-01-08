@@ -1,0 +1,112 @@
+/* Dashboard for customers CSS
+   includes customer_dashboard and eventdetail pages */
+
+
+/* CORE SETUP */
+:root {
+    --primary: #359EFF;
+    --primary-dark: #002bb8;
+    --bg-light: #f5f7f8;
+    --card-bg: #ffffff;
+    --text-main: #0c101d;
+    --text-muted: #64748b;
+}
+
+html {
+    scroll-behavior: smooth; /* Enhances the experience when clicking "Explore" */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-light);
+    overflow-x: hidden; /* Prevents layout break during zoom-out */
+}
+
+/* TECH-THEMED SCROLLBAR */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 5px;
+    border: 2px solid var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* PARALLAX ZOOM ARCHITECTURE */
+#hero-image {
+    background-attachment: fixed; /* Lock image for parallax effect */
+    background-size: cover;
+    background-position: center;
+    will-change: transform; /* Optimizes performance for the JS zoom logic */
+    transition: transform 0.1s ease-out;
+}
+
+/* CONTENT PULL-UP EFFECT */
+/* This creates the overlap */
+.content-reveal {
+    position: relative;
+    z-index: 20;
+    margin-top: -12vh; 
+    background-color: var(--bg-light);
+    border-radius: 50px 50px 0 0; /* Aesthetic rounded corner reveal */
+    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.05);
+}
+
+/* REVEAL-ON-SCROLL ANIMATIONS*/
+/* Elements start invisible and lower than their final position */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Triggered by the Intersection Observer in the HTML script */
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Custom shadow for the "Happening Now" section */
+.shadow-card {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+}
+
+/* Stagger effect for cards in a 3-column grid */
+.reveal:nth-child(2) { transition-delay: 0.15s; }
+.reveal:nth-child(3) { transition-delay: 0.3s; }
+
+/* CARD & UI COMPONENTS*/
+.event-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #edf2f7;
+}
+
+.event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px -10px rgba(0, 59, 255, 0.15);
+}
+
+/* Date Badge Glassmorphism */
+.date-badge {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* UTILITIES */
+.text-gradient {
+    background: linear-gradient(to right, #60a5fa, var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

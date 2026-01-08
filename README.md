@@ -32,45 +32,46 @@ source venv/bin/activate
 ```
 
 ### Setting up dependencies
-
 - Install the required framework and libraries:
  ```bash
 pip install -r requirements.txt
  ```
 
-### Updating dependencies 
-
-- To keep track of the libraries used in this project:
-
-```bash
-pip freeze > requirements.txt
-```
-
 ### Database setup
-- Apply database migrations
+- Apply database migrations to create necessary tables
 ```bash
 python manage.py makemigrations accounts events
 python manage.py migrate
 ```
 
-### Create a superuser (Admin account)
+### Images Setup
+- The /media/speakers/ and /media/event_banners/ folders should already exist in your local directory after cloning.
+```bash
+This project uses .gitkeep to preserve the media directory structure on GitHub. 
+```
+- Action: manually place the images set into these respective subfolders.
+
+- import .json file to populate dashboard with the 5 prepared events and 5 speakers, run the following:
+```bash
+python manage.py loaddata dummy_data.json
+```
+
+### Create a superuser (to access Django Admin Panel)
 ```bash
 python manage.py createsuperuser
 ```
 
-### Run the file
-- To launch the local development server:
+### Run the system
+- launch the local development server:
 ```bash
 python manage.py runserver
 ```
 ### Once the server is running, you can access the system at:
-- Admin Interface: http://127.0.0.1:8000/admin/
-- Main Dashboard: http://127.0.0.1:8000/dashboard/
+- Django Admin Panel: http://127.0.0.1:8000/admin/
+- User Dashboard: http://127.0.0.1:8000/dashboard/
 ---
 
-## LIBRARY DOCUMENTATIONS
-
-
-
-- [Django Documentation](https://docs.djangoproject.com/en/6.0/)
-- [Bootstrap 5 Documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
+## TECH STACK
+- Backend: [Django 4.2.27 ](https://docs.djangoproject.com/en/4.2/)
+- Frontend: [Tailwind CSS Play CDN](https://tailwindcss.com/docs/installation/play-cdn)
+- Database: [SQLite3]

@@ -1,0 +1,29 @@
+/* Event Detail Page */
+
+body {
+    font-family: 'Noto Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Custom Scrollbar Utility for School Standard cleanliness */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Smooth scrolling for anchor links (Overview, Speakers, etc.) */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Sticky adjustments for the Sidebar */
+.sticky-sidebar {
+    top: 7rem;
+}
