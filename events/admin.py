@@ -12,8 +12,7 @@ class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'location', 'date', 'time', 'status')
     list_filter = ('status', 'date')
     search_fields = ('title', 'location')
-    # This turns the empty box in your screenshot into a searchable side-by-side tool
-    # It MUST be a tuple, so don't forget the comma!
+    # It MUST be a tuple, so use comma for separation
     filter_horizontal = ('speakers',)
 
 @admin.register(Registration)
