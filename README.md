@@ -67,8 +67,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 ### Once the server is running, you can access the system at:
-- Django Admin Panel: http://127.0.0.1:8000/admin/
-- User Dashboard: http://127.0.0.1:8000/dashboard/
+- http://127.0.0.1:8000/
 ---
 
 ## TECH STACK
