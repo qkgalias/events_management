@@ -20,6 +20,6 @@ static_cdn/
 .DS_Store
 .vscode/
 
-# Ignore all actual uploaded files (images, etc.) 
-media/*
+# Ignore all files inside media, but keep the directory structure
+media/**/*
 !media/**/.gitkeep
