@@ -1,0 +1,182 @@
+<style>
+    .welcome-text {
+        font-family: "Space Grotesk", sans-serif !important;
+    }
+    .login-form-custom p { margin: 0; padding: 0; }
+    
+    .login-form-custom input {
+        display: block !important;
+        width: 100% !important;
+        border-radius: 0.5rem !important;
+        border: 1px solid #e2e8f0 !important;
+        background-color: #ffffff !important;
+        color: #0c101d !important;
+        height: 3rem !important;
+        padding: 0.75rem 3.5rem 0.75rem 1rem !important; /* Increased for icon alignment */
+        font-family: "Noto Sans", sans-serif !important;
+        font-size: 0.875rem !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .login-form-custom input:focus {
+        outline: none !important;
+        border-color: #359EFF !important;
+        box-shadow: 0 0 0 1px #359EFF !important;
+    }
+
+    /* Unified Icon Container for perfect centering */
+    .field-icon-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 3.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        color: #94a3b8;
+        transition: color 0.2s ease;
+    }
+
+    .group:focus-within .field-icon-container {
+        color: #359EFF;
+    }
+
+    /* Interactive Toggle Button overrides */
+    .password-toggle-btn {
+        pointer-events: auto !important;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        outline: none;
+    }
+
+    .password-toggle-btn:hover {
+        color: #359EFF;
+    }
+</style>
+
+<div class="px-8 pt-10 pb-8 bg-white rounded-t-2xl">
+    
+    {% if request.GET.reset_success == 'true' %}
+        <div id="modal-reset-success" class="mb-6 p-4 rounded-xl bg-green-50 border border-green-100 flex items-center gap-3 animate-in fade-in zoom-in duration-300">
+            <div class="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white shadow-sm">
+                <span class="material-symbols-outlined text-sm">task_alt</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-green-800 uppercase tracking-tight">Password Updated!</p>
+                <p class="text-xs text-green-700 font-medium">Your account is secure. Please sign in now.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if request.GET.signup_success == 'true' %}
+        <div class="mb-6 p-4 rounded-xl bg-green-50 border border-green-100 flex items-center gap-3 animate-in fade-in zoom-in duration-300">
+            <div class="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white shadow-sm">
+                <span class="material-symbols-outlined text-sm">check_circle</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-green-800 uppercase tracking-tight">Account Created!</p>
+                <p class="text-xs text-green-700 font-medium">Please sign in with your new credentials.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="mb-8 text-center">
+        <h2 class="welcome-text text-2xl font-bold tracking-tight text-slate-900 leading-tight">Welcome Back!</h2>
+        <p class="mt-2 text-sm text-slate-500 font-sans leading-relaxed">Enter your credentials to continue.</p>
+    </div>
+
+    <form method="post" action="." class="space-y-5" id="login-form">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div id="login-error-flag" class="p-3 text-xs text-red-600 bg-red-50 rounded-lg border border-red-100 mb-4">
+                Invalid credentials. Please try again.
+            </div>
+        {% endif %}
+
+        <div class="group">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-sans transition-colors group-focus-within:text-primary">
+                Username
+            </label>
+            <div class="relative login-form-custom">
+                {{ form.username }} 
+                <div class="field-icon-container">
+                    <span class="material-symbols-outlined text-[20px]">person</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="group">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-sans transition-colors group-focus-within:text-primary">
+                Password
+            </label>
+            <div class="relative login-form-custom">
+                {{ form.password }} 
+                <button type="button" onclick="togglePasswordVisibility('id_password', 'login-p-icon')" class="field-icon-container password-toggle-btn">
+                    <span id="login-p-icon" class="material-symbols-outlined text-[20px]">visibility</span>
+                </button>
+            </div>
+            <div class="flex justify-end mt-2">
+                <a class="text-xs font-medium text-slate-500 hover:text-primary transition-colors font-sans underline decoration-transparent hover:decoration-primary/50 underline-offset-4" 
+                   href="{% url 'password_reset' %}">
+                    Forgot password?
+                </a>
+            </div>
+        </div>
+
+        <button type="submit" 
+                id="login-submit-btn"
+                onclick="triggerLoading(this, event)"
+                class="group w-full h-12 bg-primary hover:bg-[#2b85db] text-white text-sm font-bold rounded-xl shadow-lg mt-4 active:scale-[0.98] active:shadow-sm flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            
+            <span class="btn-text-container flex items-center gap-2">
+                Sign In to TechHub
+                <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+            </span>
+
+            <div class="btn-spinner-container hidden items-center justify-center">
+                <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            </div>
+        </button>
+    </form>
+</div>
+
+<script>
+    // Toggle Password Visibility
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        
+        if (input.type === "password") {
+            input.type = "text";
+            icon.textContent = "visibility_off";
+        } else {
+            input.type = "password";
+            icon.textContent = "visibility";
+        }
+    }
+
+    // Enable/Disable submit button based on input fields
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('login-form');
+        const username = form.querySelector('input[name="username"]');
+        const password = form.querySelector('input[name="password"]');
+        const submitBtn = document.getElementById('login-submit-btn');
+
+        const toggleButton = () => {
+            const isReady = username.value.trim().length > 0 && password.value.trim().length > 0;
+            submitBtn.disabled = !isReady;
+        };
+
+        if (username && password) {
+            [username, password].forEach(input => {
+                input.addEventListener('input', toggleButton);
+            });
+        }
+
+        toggleButton();
+    });
+</script>

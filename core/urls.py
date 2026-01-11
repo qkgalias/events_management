@@ -18,15 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from accounts.views import signup
 
 urlpatterns = [
-    # The root URL now points to the Events app, which is public
     path('', include('events.urls')), 
-    
     path('admin/', admin.site.urls),
-    path('accounts/signup/', signup, name='signup'),
-    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,280 @@
+<style>
+    .signup-header { font-family: "Space Grotesk", sans-serif !important; }
+    .signup-form-custom p { margin: 0; padding: 0; }
+    
+    .signup-form-custom input {
+        display: block !important;
+        width: 100% !important;
+        border-radius: 0.5rem !important;
+        border: 1px solid #e2e8f0 !important;
+        background-color: #ffffff !important;
+        color: #0c101d !important;
+        height: 3rem !important;
+        padding: 0.75rem 3.5rem 0.75rem 1rem !important;
+        font-family: "Noto Sans", sans-serif !important;
+        font-size: 0.875rem !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .signup-form-custom input:focus {
+        outline: none !important;
+        border-color: #359EFF !important;
+        box-shadow: 0 0 0 1px #359EFF !important;
+    }
+
+    /* States for Real-Time Validation */
+    .input-match-success {
+        border: 2px solid #10b981 !important;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .input-match-error {
+        border: 2px solid #ef4444 !important;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    .signup-form-custom .helptext { display: none !important; }
+
+    /* Floating Hint Styling */
+    .validation-hint {
+        font-size: 10px;
+        font-weight: 700;
+        margin-top: 4px;
+        transition: all 0.3s ease;
+    }
+
+    /* Unified Icon Container for perfect centering */
+    .field-icon-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 3.5rem; /* Matches the padding-right of the input */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none; /* Allows clicking through to input */
+        color: #94a3b8;
+        transition: color 0.2s ease;
+    }
+
+    .group:focus-within .field-icon-container {
+        color: #359EFF;
+    }
+
+    /* Interactive Toggle Button overrides */
+    .password-toggle-btn {
+        pointer-events: auto !important; /* Re-enable clicking for buttons */
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        outline: none;
+    }
+
+    .password-toggle-btn:hover {
+        color: #359EFF;
+    }
+</style>
+
+<div class="px-8 pt-10 pb-4 bg-white rounded-t-2xl">
+    <div class="mb-8 text-center">
+        <h2 class="signup-header text-2xl font-bold tracking-tight text-slate-900 leading-tight">Create Account</h2>
+        <p class="mt-2 text-sm text-slate-500 font-sans leading-relaxed">Join TechHub to discover and manage your IT events.</p>
+    </div>
+
+    <form method="post" action="." class="space-y-4" id="signup-form">
+        {% csrf_token %}
+
+        {% if signup_form.errors %}
+            <div id="signup-error-flag" class="p-3 text-[10px] text-red-600 bg-red-50 rounded-lg border border-red-100 mb-4">
+                <ul class="list-disc list-inside">
+                    {% for field in signup_form %}{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}{% endfor %}
+                    {% for error in signup_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="group">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-sans transition-colors group-focus-within:text-primary">
+                Username
+            </label>
+            <div class="relative signup-form-custom">
+                {{ signup_form.username }}
+                <div class="field-icon-container">
+                    <span class="material-symbols-outlined text-[20px]">person</span>
+                </div>
+            </div>
+            <p id="username-hint" class="validation-hint hidden"></p>
+        </div>
+
+        <div class="group">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-sans transition-colors group-focus-within:text-primary">
+                Email Address
+            </label>
+            <div class="relative signup-form-custom">
+                <input type="email" name="email" id="id_email" class="w-full" value="{{ request.POST.email|default:'' }}" placeholder="you@example.com">
+                <div class="field-icon-container">
+                    <span class="material-symbols-outlined text-[20px]">mail</span>
+                </div>
+            </div>
+            <p id="email-hint" class="validation-hint hidden"></p>
+        </div>
+
+        <div class="group">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-sans transition-colors group-focus-within:text-primary">
+                Password
+            </label>
+            <div class="relative signup-form-custom">
+                {{ signup_form.password1 }}
+                <button type="button" onclick="togglePasswordVisibility('id_password1', 'p1-icon')" class="field-icon-container password-toggle-btn">
+                    <span id="p1-icon" class="material-symbols-outlined text-[20px]">visibility</span>
+                </button>
+            </div>
+            <p id="pass-hint" class="validation-hint text-slate-400">At least 8 characters required</p>
+        </div>
+
+        <div class="group">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-sans transition-colors group-focus-within:text-primary">
+                Confirm Password
+            </label>
+            <div class="relative signup-form-custom">
+                {{ signup_form.password2 }}
+                <button type="button" onclick="togglePasswordVisibility('id_password2', 'p2-icon')" class="field-icon-container password-toggle-btn">
+                    <span id="p2-icon" class="material-symbols-outlined text-[20px]">visibility</span>
+                </button>
+            </div>
+            <p id="match-hint" class="validation-hint hidden"></p>
+        </div>
+
+        <button type="submit" 
+                id="signup-submit-btn" 
+                onclick="triggerLoading(this, event)"
+                class="group w-full h-12 bg-primary hover:bg-[#2b85db] text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-[0.98] active:shadow-sm mt-4 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+            
+            <span class="btn-text-container flex items-center gap-2">
+                Register Now
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </span>
+
+            <div class="btn-spinner-container hidden items-center justify-center">
+                <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            </div>
+        </button>
+    </form>
+</div>
+
+<script>
+    // Toggle Password Visibility //
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        
+        if (input.type === "password") {
+            input.type = "text";
+            icon.textContent = "visibility_off";
+        } else {
+            input.type = "password";
+            icon.textContent = "visibility";
+        }
+    }
+
+    // Real-Time Validation Logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('signup-form');
+        const username = form.querySelector('input[name="username"]');
+        const email = form.querySelector('input[name="email"]');
+        const p1 = form.querySelector('input[name="password1"]');
+        const p2 = form.querySelector('input[name="password2"]');
+        const submitBtn = document.getElementById('signup-submit-btn');
+
+        const validate = () => {
+            let isValid = true;
+
+            // 1. Username Check
+            if (username.value.length > 0 && username.value.length < 3) {
+                applyStyle(username, 'username-hint', 'Too short', false);
+                isValid = false;
+            } else if (username.value.length >= 3) {
+                applyStyle(username, 'username-hint', 'Looks good!', true);
+            } else {
+                removeStyle(username, 'username-hint');
+            }
+
+            // 2. Email Regex Check
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email.value.length > 0) {
+                if (!emailRegex.test(email.value)) {
+                    applyStyle(email, 'email-hint', 'Invalid email format', false);
+                    isValid = false;
+                } else {
+                    applyStyle(email, 'email-hint', 'Valid email', true);
+                }
+            } else {
+                removeStyle(email, 'email-hint');
+            }
+
+            // 3. Password Strength
+            if (p1.value.length > 0) {
+                if (p1.value.length < 8) {
+                    applyStyle(p1, 'pass-hint', 'Minimum 8 characters required', false);
+                    isValid = false;
+                } else {
+                    applyStyle(p1, 'pass-hint', 'Strong password', true);
+                }
+            } else {
+                const passHint = document.getElementById('pass-hint');
+                p1.classList.remove('input-match-success', 'input-match-error');
+                passHint.textContent = 'At least 8 characters required';
+                passHint.style.color = '#94a3b8';
+            }
+
+            // 4. Password Match Check
+            if (p1.value.length > 0 && p2.value.length > 0) {
+                if (p1.value !== p2.value) {
+                    applyStyle(p2, 'match-hint', 'Passwords do not match', false);
+                    isValid = false;
+                } else {
+                    applyStyle(p2, 'match-hint', 'Passwords match', true);
+                }
+            } else {
+                removeStyle(p2, 'match-hint');
+            }
+
+            const allFilled = username.value && email.value && p1.value && p2.value;
+            submitBtn.disabled = !isValid || !allFilled;
+        };
+
+        function applyStyle(el, hintId, msg, isSuccess) {
+            const hint = document.getElementById(hintId);
+            el.classList.remove('input-match-success', 'input-match-error');
+            
+            if (isSuccess) {
+                el.classList.add('input-match-success');
+                if (hint) {
+                    hint.textContent = msg;
+                    hint.style.color = '#10b981';
+                    hint.classList.remove('hidden');
+                }
+            } else {
+                el.classList.add('input-match-error');
+                if (hint) {
+                    hint.textContent = msg;
+                    hint.style.color = '#ef4444';
+                    hint.classList.remove('hidden');
+                }
+            }
+        }
+
+        function removeStyle(el, hintId) {
+            el.classList.remove('input-match-success', 'input-match-error');
+            const hint = document.getElementById(hintId);
+            if (hint) hint.classList.add('hidden');
+        }
+
+        form.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', validate);
+        });
+
+        submitBtn.disabled = true;
+    });
+</script>

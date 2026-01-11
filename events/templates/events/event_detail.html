@@ -1,78 +1,22 @@
+{% extends 'events/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html class="light" lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>{{ event.title|capfirst }} - TechHub</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0&display=block" rel="stylesheet"/>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#359EFF",
-                        "background-dark": "#0f1923",
-                        "background-light": "#f5f7f8",
-                        "text-dark": "#0c101d",
-                        "text-muted": "#64748b"
-                    },
-                    fontFamily: {
-                        display: "Space Grotesk",
-                        body: ["Noto Sans", "sans-serif"]
-                    }
-                }
-            }
-        };
-    </script>
-    
-    <link rel="stylesheet" href="{% static 'events/css/event_detail_v2.css' %}">
+{% block title %}{{ event.title|capfirst }} - TechHub{% endblock %}
 
+{% block extra_head %}
     <style>
-        .material-symbols-outlined {
-            font-size: 24px !important;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            vertical-align: middle;
-            line-height: 1;
+        /* Error Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
         }
+        .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
     </style>
-</head>
+{% endblock %}
 
-<body class="bg-background-light text-text-dark antialiased min-h-screen flex flex-col font-body">
-
-    <nav class="sticky top-0 z-50 w-full border-b border-[#e6e9f4] bg-white/80 backdrop-blur-md px-4 sm:px-10 py-3">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <a href="{% url 'customer_dashboard' %}" class="flex items-center gap-4 hover:opacity-80 transition-opacity">
-                <div class="size-6 text-primary"><span class="material-symbols-outlined text-2xl">event_note</span></div>
-                <h2 class="text-lg font-bold leading-tight font-display text-text-dark">TechHub</h2>
-            </a>
-            
-            <div class="flex items-center gap-6">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'profile_dashboard' %}" class="hidden md:inline text-sm font-medium text-slate-400 hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4 decoration-2">
-                        Welcome, {{ user.username }}
-                    </a>
-                    <form action="{% url 'logout' %}" method="post" class="inline">
-                        {% csrf_token %}
-                        <button type="submit" class="text-red-500 text-sm font-bold hover:text-red-700 transition-colors">Logout</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="text-sm font-bold text-text-dark hover:text-primary transition-colors">Login</a>
-                    <a href="{% url 'signup' %}" class="bg-primary text-white text-sm font-bold px-4 py-2 rounded-lg shadow-lg hover:-translate-y-0.5 transition-all">Get Started</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
-
+{% block content %}
     {% if messages %}
         {% for message in messages %}
             {% if 'registration_success' in message.tags %}
@@ -85,40 +29,27 @@
                     </div>
 
                     <div class="p-8 text-center">
-                        <h3 class="text-2xl font-black text-slate-900 font-display mb-2">Registration Confirmed!</h3>
-                        <p class="text-slate-500 text-sm mb-6">You have successfully joined the following event:</p>
+                        <h3 class="text-2xl font-black text-text-main font-display mb-2">Registration Confirmed!</h3>
+                        <p class="text-text-muted text-sm mb-6">You have successfully joined the following event:</p>
                         
                         <div class="bg-slate-50 rounded-2xl p-6 text-left border border-slate-100 mb-8">
                             <h4 class="font-bold text-lg text-primary mb-3 font-display">{{ event.title|capfirst }}</h4>
                             <div class="space-y-3">
-                                <div class="flex items-center gap-3 text-sm text-slate-600">
+                                <div class="flex items-center gap-3 text-sm text-text-muted">
                                     <span class="material-symbols-outlined text-primary text-xl">calendar_month</span>
                                     <span>{{ event.date|date:"F d, Y" }}</span>
                                 </div>
-                                <div class="flex items-center gap-3 text-sm text-slate-600">
+                                <div class="flex items-center gap-3 text-sm text-text-muted">
                                     <span class="material-symbols-outlined text-primary text-xl">schedule</span>
                                     <span>{{ event.time|time:"h:i A" }}</span>
-                                </div>
-                                <div class="flex items-center gap-3 text-sm text-slate-600">
-                                    <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-                                    <span>{{ event.location|capfirst }}</span>
                                 </div>
                             </div>
                         </div>
 
                         <button onclick="document.getElementById('success-modal').remove()" 
-                                class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-all shadow-lg">
+                                class="w-full py-4 bg-background-dark hover:bg-slate-800 text-white font-bold rounded-xl transition-all shadow-lg">
                             Great, thanks!
                         </button>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-4">
-                <div class="flex items-center p-4 text-sm rounded-2xl border transition-all bg-blue-50 text-blue-800 border-blue-200" role="alert">
-                    <span class="material-symbols-outlined me-3">info</span>
-                    <div>
-                        <span class="font-bold">Notification:</span> {{ message }}
                     </div>
                 </div>
             </div>
@@ -126,22 +57,14 @@
         {% endfor %}
     {% endif %}
 
-    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-x-8 gap-y-4 grid grid-cols-1 lg:grid-cols-12 relative">
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24 gap-x-8 gap-y-4 grid grid-cols-1 lg:grid-cols-12 relative">
         
         <div class="lg:col-span-12 mb-2">
-            {% if origin == 'schedule' %}
-                <a href="{% url 'full_schedule' %}" 
-                   class="group inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                    Back to Schedule
-                </a>
-            {% else %}
-                <a href="{% url 'customer_dashboard' %}" 
-                   class="group inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                    Back to Dashboard
-                </a>
-            {% endif %}
+            <a href="{% if origin == 'profile' %}{% url 'profile_dashboard' %}?returning=true{% elif origin == 'schedule' %}{% url 'full_schedule' %}{% else %}{% url 'homepage' %}{% endif %}" 
+               class="group inline-flex items-center gap-2 text-sm font-bold text-text-muted hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                Back to {% if origin == 'profile' %}Profile{% elif origin == 'schedule' %}Schedule{% else %}Home{% endif %}
+            </a>
         </div>
 
         <div class="lg:col-span-8 flex flex-col gap-10">
@@ -164,62 +87,51 @@
             <section id="overview" class="flex flex-col gap-8">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div class="p-6 rounded-2xl bg-white border border-slate-100 flex items-center gap-4 shadow-sm">
-                        <div class="flex-shrink-0 size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                            <span class="material-symbols-outlined">calendar_month</span>
-                        </div>
+                        <div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><span class="material-symbols-outlined">calendar_month</span></div>
                         <div>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Date</p>
-                            <p class="font-bold text-slate-700">{{ event.date|date:"M d, Y" }}</p>
+                            <p class="text-[10px] text-text-muted font-bold uppercase tracking-widest">Date</p>
+                            <p class="font-bold text-text-main">{{ event.date|date:"M d, Y" }}</p>
                         </div>
                     </div>
                     <div class="p-6 rounded-2xl bg-white border border-slate-100 flex items-center gap-4 shadow-sm">
-                        <div class="flex-shrink-0 size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                            <span class="material-symbols-outlined">schedule</span>
-                        </div>
+                        <div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><span class="material-symbols-outlined">schedule</span></div>
                         <div>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Time</p>
-                            <p class="font-bold text-slate-700">{{ event.time|time:"h:i A" }}</p>
+                            <p class="text-[10px] text-text-muted font-bold uppercase tracking-widest">Time</p>
+                            <p class="font-bold text-text-main">{{ event.time|time:"h:i A" }}</p>
                         </div>
                     </div>
                     <div class="p-6 rounded-2xl bg-white border border-slate-100 flex items-center gap-4 shadow-sm">
-                        <div class="flex-shrink-0 size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                            <span class="material-symbols-outlined">location_on</span>
-                        </div>
+                        <div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><span class="material-symbols-outlined">location_on</span></div>
                         <div>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Location</p>
-                            <p class="font-bold text-slate-700">{{ event.location|capfirst }}</p>
+                            <p class="text-[10px] text-text-muted font-bold uppercase tracking-widest">Location</p>
+                            <p class="font-bold text-text-main">{{ event.location|capfirst }}</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="prose prose-lg max-w-none bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-                    <h3 class="font-display font-bold text-2xl text-text-dark mb-4">About the Event</h3>
-                    <p class="text-slate-600 leading-relaxed">{{ event.description|linebreaks }}</p>
+                    <h3 class="font-display font-bold text-2xl text-text-main mb-4">About the Event</h3>
+                    <p class="text-text-muted leading-relaxed">{{ event.description|linebreaks }}</p>
                 </div>
 
                 <div class="mt-4 pt-10 border-t border-slate-200">
-                    <h3 class="font-display font-bold text-2xl text-text-dark mb-8">Featured Speakers</h3>
+                    <h3 class="font-display font-bold text-2xl text-text-main mb-8">Featured Speakers</h3>
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
                         {% for speaker in event.speakers.all %}
                         <div class="group flex flex-col items-center text-center gap-3">
                             <div class="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mb-2 ring-4 ring-transparent group-hover:ring-primary/20 transition-all duration-500">
                                 {% if speaker.image %}
-                                    <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                                         src="{{ speaker.image.url }}" alt="{{ speaker.name }}">
+                                    <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="{{ speaker.image.url }}" alt="{{ speaker.name }}">
                                 {% else %}
-                                    <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
-                                        <span class="material-symbols-outlined text-4xl">person</span>
-                                    </div>
+                                    <div class="w-full h-full bg-slate-100 flex items-center justify-center text-text-muted"><span class="material-symbols-outlined text-4xl">person</span></div>
                                 {% endif %}
                             </div>
                             <div>
-                                <h5 class="font-bold text-text-dark font-display">{{ speaker.name }}</h5>
+                                <h5 class="font-bold text-text-main font-display">{{ speaker.name }}</h5>
                                 <p class="text-[11px] text-primary font-bold uppercase tracking-wider">{{ speaker.role }}</p>
-                                <p class="text-[10px] text-slate-400 font-medium mt-1">{{ speaker.company }}</p>
+                                <p class="text-[10px] text-text-muted font-medium mt-1">{{ speaker.company }}</p>
                             </div>
                         </div>
-                        {% empty %}
-                        <p class="text-sm text-slate-400 italic col-span-full text-center">Speaker list to be announced.</p>
                         {% endfor %}
                     </div>
                 </div>
@@ -230,33 +142,40 @@
             <div class="sticky top-28 flex flex-col gap-6">
                 <div class="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 text-center">
                     <div class="mb-8">
-                        <p class="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Registration Fee</p>
-                        <h3 class="text-5xl font-black text-text-dark font-display">₱0.00</h3>
+                        <p class="text-text-muted text-xs uppercase font-bold tracking-widest mb-1">Registration Fee</p>
+                        <h3 class="text-5xl font-black text-text-main font-display">₱0.00</h3>
                         <p class="text-primary text-[10px] font-bold mt-2 uppercase tracking-tighter italic">Free for IT Students</p>
                     </div>
 
                     {% if user.is_authenticated %}
                         {% if is_registered %}
-                            <div class="w-full flex items-center justify-center gap-2 rounded-xl h-14 bg-green-50 text-green-600 font-bold text-lg border border-green-200 shadow-sm animate-in fade-in zoom-in duration-300">
+                            <div class="w-full flex items-center justify-center gap-2 rounded-xl h-14 bg-green-50 text-green-600 font-bold text-lg border border-green-200 shadow-sm">
                                 <span>Already Registered</span>
                                 <span class="material-symbols-outlined">task_alt</span>
                             </div>
                         {% else %}
                             <form action="{% url 'join_event' event.id %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-xl h-14 bg-primary hover:bg-blue-600 text-white font-bold text-lg shadow-lg hover:-translate-y-1 transition-all">
-                                    <span>Register Now</span>
-                                    <span class="material-symbols-outlined">arrow_forward</span>
+                                <button type="submit" 
+                                        onclick="triggerLoading(this, event)"
+                                        class="w-full flex items-center justify-center gap-2 rounded-xl h-14 bg-primary hover:bg-blue-600 text-white font-bold text-lg shadow-lg hover:-translate-y-1 transition-all disabled:opacity-70">
+                                    <span class="btn-text-container flex items-center gap-2">
+                                        Register Now
+                                        <span class="material-symbols-outlined">arrow_forward</span>
+                                    </span>
+                                    <div class="btn-spinner-container hidden items-center justify-center">
+                                        <div class="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    </div>
                                 </button>
                             </form>
                         {% endif %}
                     {% else %}
                         <div class="space-y-4">
-                            <p class="text-sm text-slate-500 font-medium">Ready to join this seminar?</p>
-                            <a href="{% url 'login' %}" class="w-full flex items-center justify-center gap-2 rounded-xl h-14 bg-primary hover:bg-blue-600 text-white font-bold text-lg shadow-lg hover:-translate-y-1 transition-all">
+                            <p class="text-sm text-text-muted font-medium">Ready to join this seminar?</p>
+                            <button onclick="openAuthModal('login')" class="w-full flex items-center justify-center gap-2 rounded-xl h-14 bg-primary hover:bg-blue-600 text-white font-bold text-lg shadow-lg hover:-translate-y-1 transition-all">
                                 <span>Login to Join</span>
                                 <span class="material-symbols-outlined text-sm">lock</span>
-                            </a>
+                            </button>
                         </div>
                     {% endif %}
                 </div>
@@ -264,30 +183,26 @@
                 <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 flex items-center gap-4">
                     <div class="size-12 bg-white rounded-xl flex items-center justify-center text-primary shadow-sm font-bold font-display text-xl">TH</div>
                     <div>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Organized by</p>
-                        <p class="font-bold text-sm text-text-dark">TechHub Global</p>
+                        <p class="text-[10px] text-text-muted font-bold uppercase tracking-widest">Organized by</p>
+                        <p class="font-bold text-sm text-text-main">TechHub Global</p>
                     </div>
                 </div>
             </div>
         </aside>
     </main>
+{% endblock %}
 
-    <footer class="bg-[#0f1923] text-white py-12 w-full mt-auto relative z-10">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center gap-6">
-            <p class="text-gray-500 text-[10px] tracking-widest uppercase font-display text-center">
-                © 2026 Advance Programming • TechHub. All rights reserved.
-            </p>
-            
-            <a href="https://github.com/qkgalias/events_management" 
-               target="_blank" 
-               class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-300 group">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="fill-current transition-transform group-hover:scale-110">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                <span class="text-[10px] font-bold tracking-tighter uppercase">View Repository</span>
-            </a>
-        </div>
-    </footer>
+{% block extra_js %}
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const loginError = document.getElementById('login-error-flag');
+        if (loginError) {
+            openAuthModal('login');
+            loginError.classList.add('shake-error');
+        }
 
-</body>
-</html>
+        const signupError = document.getElementById('signup-error-flag');
+        if (signupError) openAuthModal('signup');
+    });
+    </script>
+{% endblock %}

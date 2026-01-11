@@ -1,84 +1,36 @@
+{% extends 'events/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html class="light scroll-smooth" lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Full Schedule - TechHub</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { 
-                        primary: "#359EFF", 
-                        "background-dark": "#0f1923",
-                        "text-main": "#0c101d",
-                        "text-muted": "#64748b"
-                    },
-                    fontFamily: { display: "Space Grotesk", body: ["Noto Sans", "sans-serif"] }
-                }
-            }
-        };
-    </script>
-    <link rel="stylesheet" href="{% static 'events/css/cstmr_dashb.css' %}">
-</head>
+{% block title %}Full Schedule - TechHub{% endblock %}
 
-<body class="bg-[#f5f7f8] antialiased font-body min-h-screen flex flex-col">
+{% block extra_head %}
+    <style>
+        /* Error Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+        .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+    </style>
+{% endblock %}
 
-    <nav id="main-nav" class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 h-20 flex items-center transition-all duration-500">
-        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg">
-                    <span class="material-symbols-outlined text-xl">terminal</span>
-                </div>
-                <h1 class="font-display font-bold text-xl tracking-tight text-text-main">TechHub<span class="text-primary">.</span></h1>
-            </div>
-            
-            <div class="flex items-center gap-6">
-                {% if user.is_authenticated %}
-                    <div class="hidden md:flex flex-col items-end">
-                        <span class="text-[10px] uppercase tracking-widest text-text-muted font-bold">Authenticated</span>
-                        <a href="{% url 'profile_dashboard' %}" class="text-sm font-bold text-text-main hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4 decoration-2">
-                            {{ user.username }}
-                        </a>
-                    </div>
-                    <form action="{% url 'logout' %}" method="post" class="flex items-center">
-                        {% csrf_token %}
-                        <button type="submit" class="flex items-center gap-1 text-red-500 font-bold text-sm hover:text-red-700 transition-colors">
-                            <span class="material-symbols-outlined text-sm">logout</span> Logout
-                        </button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="text-sm font-bold text-text-main hover:text-primary transition-colors">Login</a>
-                    <a href="{% url 'signup' %}" class="px-6 py-2 bg-primary text-white rounded-xl font-display font-bold text-sm shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2">
-                        Get Started <span class="material-symbols-outlined text-xs">rocket_launch</span>
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
-
+{% block content %}
     <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 flex-grow w-full">
         
         <div class="mb-10">
-            <a href="{% url 'customer_dashboard' %}" 
+            <a href="{% if origin == 'profile' %}{% url 'profile_dashboard' %}?returning=true{% else %}{% url 'homepage' %}{% endif %}" 
                class="group inline-flex items-center gap-2 text-sm font-bold text-text-muted hover:text-primary transition-colors">
                 <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                Back to Dashboard
+                Back to {% if origin == 'profile' %}Profile{% else %}Home{% endif %}
             </a>
         </div>
 
         <header class="mb-16 text-center max-w-2xl mx-auto">
             <span class="text-primary font-bold text-[10px] tracking-[0.2em] uppercase mb-4 block">2026 Schedule</span>
-            <h1 class="font-display font-black text-5xl text-text-main mb-6">Explore All Seminars</h1>
-            <p class="text-text-muted text-lg">Use the filters below to find specific technical workshops and upcoming summits.</p>
+            <h1 class="font-display font-black text-5xl text-text-main mb-6 tracking-tighter">Explore All Seminars</h1>
+            <p class="text-text-muted text-lg font-light leading-relaxed">Find specific technical workshops and upcoming summits tailored for IT professionals.</p>
         </header>
 
         <section class="mb-16 space-y-8">
@@ -119,21 +71,22 @@
                 {% endfor %}
             </div>
 
-            <div class="text-center text-xs font-bold text-text-muted uppercase tracking-widest">
+            <div class="text-center text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">
                 {{ events.count }} seminar{{ events.count|pluralize }} found
             </div>
         </section>
 
         <div class="space-y-6">
             {% for event in events %}
-            <article class="relative flex flex-col md:flex-row bg-white rounded-3xl p-6 border border-gray-100 shadow-sm group transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
+            <article onclick="window.location='{% url 'event_detail' event.id %}?origin=schedule'" 
+                     class="relative flex flex-col md:flex-row bg-white rounded-3xl p-6 border border-gray-100 shadow-sm group transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
                 
                 {% if user.is_authenticated and event.id in registered_event_ids %}
                 <div class="absolute top-0 left-0 w-1.5 h-full bg-green-500 rounded-l-3xl"></div>
                 {% endif %}
 
                 <div class="flex-shrink-0 flex md:flex-col items-center justify-center md:justify-start min-w-[100px] border-b md:border-b-0 md:border-r border-gray-100 pb-4 md:pb-0 md:pr-8 mb-4 md:mb-0 gap-2 md:gap-0">
-                    <div class="text-xs font-bold text-text-muted uppercase">{{ event.date|date:"M" }}</div>
+                    <div class="text-xs font-bold text-text-muted uppercase tracking-tighter">{{ event.date|date:"M" }}</div>
                     <div class="text-4xl font-black text-primary font-display leading-none">{{ event.date|date:"d" }}</div>
                 </div>
 
@@ -148,15 +101,17 @@
                     </div>
                     <h3 class="font-display font-bold text-2xl text-text-main mb-2 group-hover:text-primary transition-colors">{{ event.title|capfirst }}</h3>
                     <div class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-text-muted">
-                        <span class="flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-sm text-primary">schedule</span> {{ event.time|time:"h:i A" }}</span>
-                        <span class="flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-sm text-primary">location_on</span> {{ event.location }}</span>
+                        <span class="flex items-center gap-1 font-medium">
+                            <span class="material-symbols-outlined text-sm text-primary">schedule</span> 
+                            {{ event.time|time:"h:i A" }}
+                        </span>
                     </div>
                 </div>
 
                 <div class="flex-shrink-0 flex items-center justify-center mt-6 md:mt-0">
-                    <a href="{% url 'event_detail' event.id %}" class="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-primary transition-all shadow-lg flex items-center gap-2">
+                    <span class="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm group-hover:bg-primary transition-all shadow-lg flex items-center gap-2">
                         Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                    </a>
+                    </span>
                 </div>
             </article>
             {% empty %}
@@ -168,26 +123,22 @@
             {% endfor %}
         </div>
     </main>
+{% endblock %}
 
-    <footer class="bg-background-dark text-white py-12 mt-auto">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center gap-6">
-            <p class="text-gray-500 text-xs tracking-widest uppercase font-display text-center">
-                © 2026 Advance Programming • TechHub. All rights reserved.
-            </p>
-            
-            <a href="https://github.com/qkgalias/events_management" 
-               target="_blank" 
-               class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-300 group">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="transition-transform group-hover:scale-110">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                <span class="text-[10px] font-bold tracking-tighter uppercase">View Repository</span>
-            </a>
-        </div>
-    </footer>
-
+{% block extra_js %}
     <script>
         const searchInput = document.getElementById('search-input');
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginError = document.getElementById('login-error-flag');
+            if (loginError) {
+                openAuthModal('login');
+                loginError.classList.add('shake-error');
+            }
+
+            const signupError = document.getElementById('signup-error-flag');
+            if (signupError) openAuthModal('signup');
+        });
 
         if (searchInput) {
             searchInput.addEventListener('input', () => {
@@ -210,5 +161,4 @@
             }
         };
     </script>
-</body>
-</html>
+{% endblock %}

@@ -6,6 +6,9 @@ class User(AbstractUser):
         ADMIN = "ADMIN", "Admin"
         CUSTOMER = "CUSTOMER", "Customer"
 
+    # Overriding the default email field to make it unique and required
+    email = models.EmailField(unique=True, blank=False, null=False)
+
     role = models.CharField(
         max_length=10, 
         choices=Role.choices, 

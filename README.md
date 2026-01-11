@@ -37,6 +37,15 @@ source venv/bin/activate
 pip install -r requirements.txt
  ```
 
+### Environment Configuration
+- Create a .env file in the root directory to securely store your credentials.
+- Add the following variables (Use a 16-character Google App Password for the email):
+ ```bash
+ # .env file
+EMAIL_USER=your-new-gmail-account@gmail.com
+EMAIL_PASS=your-16-character-app-password
+ ```
+
 ### Database setup
 - Apply database migrations to create necessary tables
 ```bash

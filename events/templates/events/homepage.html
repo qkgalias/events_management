@@ -1,0 +1,248 @@
+{% extends 'events/base.html' %}
+{% load static %}
+
+{% block title %}TechHub - The Future of Tech{% endblock %}
+
+{% block extra_head %}
+<script>
+    /**
+     * HERO ZOOM INITIALIZATION
+     * Prevents the "Flash of Unscaled Content" during page reloads.
+     */
+    (function() {
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+        const savedPos = sessionStorage.getItem('dashboardScrollPos') || 0;
+        const initialScale = Math.max(1, 1.2 - (savedPos / 2500));
+        document.documentElement.style.setProperty('--hero-scale', initialScale);
+    })();
+</script>
+
+<style>
+    /* Hero Zoom Architecture */
+    #hero-image {
+        transform: scale(var(--hero-scale)) translateZ(0); 
+        transition: none !important;
+        will-change: transform;
+        background-color: #0f1923; 
+    }
+
+    #hero-content {
+        opacity: 0; 
+        transform: translateZ(0);
+        will-change: opacity;
+    }
+
+    /* Initial Nav State */
+    #main-nav.nav-hidden {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+
+    /* Error Animation */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        50% { transform: translateX(8px); }
+        75% { transform: translateX(-8px); }
+    }
+    .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+</style>
+{% endblock %}
+
+{% block nav_initial_class %}nav-hidden{% endblock %}
+
+{% block content %}
+    <div class="relative h-[180vh] bg-[#0f1923]" id="scroll-wrapper">
+        <section id="hero-section" class="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+            <div id="hero-image" class="absolute inset-0 bg-cover bg-center" 
+                 style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920');">
+            </div>
+            
+            <div id="hero-content" class="relative z-10 text-center text-white px-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm text-xs font-display mb-8 animate-pulse">
+                    <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                    <span>Systems Operational: 2026 Edition</span>
+                </div>
+                <h1 class="font-display font-black text-6xl md:text-8xl tracking-tighter mb-6">Connecting You to the <br><span class="text-primary">Future.</span></h1>
+                <p class="max-w-xl mx-auto text-gray-300 text-lg md:text-xl font-light mb-10 leading-relaxed">Join the world's leading IT professionals at seminars designed to inspire.</p>
+                <a href="{% url 'full_schedule' %}" class="px-8 py-4 bg-primary text-white rounded-xl font-display font-bold text-lg shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2 group">
+                    Browse All Events 
+                    <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <main id="events-section" class="content-reveal relative z-20">
+        <div class="max-w-7xl mx-auto px-6 py-20 space-y-32">
+            
+            <section class="reveal">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative h-3 w-3 rounded-full bg-red-500"></span>
+                    </span>
+                    <h2 class="font-display font-bold text-3xl">Happening Now</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {% for event in events|slice:":2" %}
+                    <div onclick="window.location='{% url 'event_detail' event.id %}'" class="group relative bg-white rounded-3xl overflow-hidden shadow-card border border-gray-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl cursor-pointer">
+                        <div class="h-72 overflow-hidden relative">
+                            <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                 src="{% if event.banner_image %}{{ event.banner_image.url }}{% else %}https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800{% endif %}">
+                            <div class="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                                <span class="material-symbols-outlined text-sm">sensors</span> LIVE
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <span class="text-primary font-bold text-[10px] tracking-widest uppercase">{{ event.category }}</span>
+                            <h3 class="font-display font-bold text-2xl mt-2 mb-3">{{ event.title|capfirst }}</h3>
+                            <p class="text-text-muted text-sm line-clamp-2">{{ event.description }}</p>
+                            <div class="mt-6 flex items-center justify-between border-t pt-6 text-xs text-text-muted">
+                                <span class="flex items-center gap-4">
+                                    <span class="flex items-center gap-1 text-primary font-bold"><span class="material-symbols-outlined text-sm">videocam</span> Virtual</span>
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">group</span> 12k Live</span>
+                                </span>
+                                <span class="material-symbols-outlined text-gray-300">arrow_forward</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="reveal">
+                <div class="flex items-center justify-between mb-12">
+                    <h2 class="font-display font-bold text-3xl">Upcoming Seminars</h2>
+                    <a class="text-primary font-bold hover:gap-2 transition-all text-sm inline-flex items-center gap-1" href="{% url 'full_schedule' %}">
+                        View Full Schedule <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {% for event in events %}
+                    <article onclick="window.location='{% url 'event_detail' event.id %}'" 
+                             class="relative flex flex-col h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 cursor-pointer">
+                        
+                        <div class="relative h-48 overflow-hidden">
+                            <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                 src="{% if event.banner_image %}{{ event.banner_image.url }}{% else %}https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800{% endif %}"
+                                 alt="{{ event.title }}">
+                            
+                            <div class="date-badge absolute top-4 right-4 text-center min-w-[60px] p-2 rounded-xl bg-white/90 backdrop-blur-sm shadow-md z-20">
+                                <div class="text-[10px] font-bold text-gray-500 uppercase">{{ event.date|date:"M" }}</div>
+                                <div class="text-xl font-black text-primary font-display leading-none">{{ event.date|date:"d" }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 flex flex-col flex-1">
+                            <span class="text-blue-600 font-bold text-[10px] uppercase mb-2">{{ event.category }}</span>
+                            <h3 class="font-display font-bold text-xl mb-3 group-hover:text-primary transition-colors">{{ event.title|capfirst }}</h3>
+                            <p class="text-sm text-text-muted mb-6 flex-1">{{ event.description|truncatewords:12 }}</p>
+                            
+                            <div class="flex items-center justify-between border-t pt-4">
+                                <span class="text-xs font-bold text-text-muted group-hover:text-primary inline-flex items-center gap-1 transition-colors">
+                                    <span class="material-symbols-outlined text-sm">info</span> Details
+                                </span>
+
+                                <div class="relative z-30">
+                                    {% if user.is_authenticated %}
+                                        {% if event.id in registered_event_ids %}
+                                            <span class="text-xs px-3 py-1.5 bg-green-50 text-green-600 font-bold rounded-lg border border-green-200 inline-flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-sm">task_alt</span> Enrolled
+                                            </span>
+                                        {% else %}
+                                            <a href="{% url 'join_event' event.id %}" 
+                                               onclick="event.stopPropagation();"
+                                               class="text-xs px-4 py-2 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all">
+                                                Join Event
+                                            </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <button onclick="event.stopPropagation(); openAuthModal('login')" 
+                                                class="text-[10px] px-3 py-2 bg-gray-100 text-gray-500 font-bold rounded-lg hover:bg-gray-200 transition-all">
+                                            Login to Join
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const heroContent = document.getElementById('hero-content');
+    const mainNav = document.getElementById('main-nav');
+
+    // 1. OPTIMIZED PARALLAX & NAV LOGIC
+    let ticking = false;
+
+    function handleScroll() {
+        const scrollY = window.scrollY;
+        
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const scale = Math.max(1, 1.2 - (scrollY / 2500));
+                document.documentElement.style.setProperty('--hero-scale', scale);
+                
+                if(heroContent) heroContent.style.opacity = 1 - (scrollY / 600);
+
+                // Toggle Navbar Visibility
+                if (scrollY > 500) {
+                    mainNav.classList.remove('nav-hidden');
+                    sessionStorage.setItem('visitedBefore', 'true');
+                } else if (!sessionStorage.getItem('visitedBefore')) {
+                    mainNav.classList.add('nav-hidden');
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // 2. PAGE INITIALIZATION
+    window.onload = () => {
+        const scrollPos = sessionStorage.getItem('dashboardScrollPos');
+        if (scrollPos) {
+            window.scrollTo({ top: parseInt(scrollPos), behavior: 'instant' });
+            handleScroll();
+        }
+
+        if (sessionStorage.getItem('visitedBefore')) mainNav.classList.remove('nav-hidden');
+
+        setTimeout(() => { if (heroContent) heroContent.style.opacity = '1'; }, 30);
+    };
+
+    // 3. ERROR & MODAL HANDLING
+    document.addEventListener("DOMContentLoaded", () => {
+        handleScroll();
+        
+        const loginError = document.getElementById('login-error-flag');
+        if (loginError) {
+            openAuthModal('login');
+            loginError.classList.add('shake-error');
+        }
+
+        const signupError = document.getElementById('signup-error-flag');
+        if (signupError) openAuthModal('signup');
+    });
+
+    window.onbeforeunload = () => {
+        sessionStorage.setItem('dashboardScrollPos', window.scrollY);
+    };
+
+    // 4. REVEAL OBSERVER
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+{% endblock %}

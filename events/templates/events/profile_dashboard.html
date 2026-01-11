@@ -1,146 +1,251 @@
+{% extends 'events/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html class="light" lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>My Profile - TechHub</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { primary: "#359EFF", "background-dark": "#0f1923", "background-light": "#f5f7f8" },
-                    fontFamily: { display: "Space Grotesk", body: "Noto Sans" }
-                }
-            }
-        };
-    </script>
-</head>
 
-<body class="bg-background-light font-body text-slate-900 min-h-screen flex flex-col">
+{% block title %}My Profile - TechHub{% endblock %}
 
-    <nav class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md px-6 py-4">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <a href="{% url 'customer_dashboard' %}" class="flex items-center gap-2 text-primary font-display font-bold text-xl">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg">
-                    <span class="material-symbols-outlined text-xl">terminal</span>
-                </div>
-                TechHub
-            </a>
-        </div>
-    </nav>
+{% block extra_head %}
+<style>
+    /* Entrance Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-    <main class="max-w-4xl mx-auto px-6 py-12 flex-1 w-full">
-        
-        <div class="mb-10">
-            {% if request.session.detail_origin == 'event_detail' and request.session.last_event_detail %}
-                <a href="{{ request.session.last_event_detail }}" 
-                   class="group inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                    Back to Event Details
-                </a>
-            {% elif request.session.detail_origin == 'schedule' %}
-                <a href="{% url 'full_schedule' %}" 
-                   class="group inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                    Back to Schedule
-                </a>
+    .animate-entrance {
+        animation: fadeInUp 0.4s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Card Hover States */
+    .dashboard-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Status Pulse Indicator for Active Events */
+    .status-pulse {
+        position: relative;
+        display: inline-flex;
+        align-items: center; gap: 6px;
+    }
+
+    .status-pulse::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        background-color: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        animation: status-pulse-glow 2s infinite;
+    }
+
+    @keyframes status-pulse-glow {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-5xl mx-auto px-6 pt-28 pb-12 flex-1 w-full">
+    
+    <div class="mb-10 animate-entrance" style="animation-delay: 0.1s;">
+        {% with return_url=request.session.profile_return_url|default:'/' %}
+        <a href="{{ return_url }}{% if 'event' in return_url %}?origin=home{% endif %}" 
+           class="group inline-flex items-center gap-2 text-sm font-bold text-text-muted hover:text-primary transition-colors">
+            <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            
+            {% if 'event' in return_url %}
+                Back to Event Details
+            {% elif 'schedule' in return_url %}
+                Back to Schedule
             {% else %}
-                <a href="{% url 'customer_dashboard' %}" 
-                   class="group inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                    Back to Dashboard
-                </a>
+                Back to Home
             {% endif %}
+        </a>
+        {% endwith %}
+    </div>
+
+    <section class="animate-entrance bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-6 flex flex-col md:flex-row items-center gap-8" style="animation-delay: 0.2s;">
+        <div class="size-24 bg-primary/10 rounded-full flex items-center justify-center text-primary ring-4 ring-primary/5">
+            <span class="material-symbols-outlined text-5xl">account_circle</span>
+        </div>
+        <div class="text-center md:text-left flex-1">
+            <h1 class="text-3xl font-black font-display tracking-tight text-text-main">{{ user.username }}</h1>
+            <p class="text-text-muted font-medium">{{ user.email }}</p>
+            <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+                <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-text-muted">Member Since {{ user.date_joined|date:"Y" }}</span>
+                <span class="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-primary">Student Account</span>
+                <span class="px-3 py-1 bg-blue-50/50 border border-blue-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">history</span>
+                    Last Login: {{ user.last_login|date:"M d, Y" }}
+                </span>
+            </div>
+        </div>
+        
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="button" 
+                    onclick="triggerLoading(this, event)"
+                    class="px-6 py-2 border border-red-100 text-red-500 rounded-xl font-bold text-sm hover:bg-red-500 hover:text-white transition-all duration-300 disabled:opacity-50 min-w-[100px] flex items-center justify-center">
+                <span class="btn-text-container">Logout</span>
+                <div class="btn-spinner-container hidden">
+                    <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </button>
+        </form>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 animate-entrance" style="animation-delay: 0.3s;">
+        <div class="dashboard-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm border-b-4 border-b-primary">
+            <p class="text-text-muted text-[10px] font-bold uppercase tracking-widest mb-1">Total Registrations</p>
+            <p class="text-3xl font-black font-display text-text-main">{{ my_registrations.count }}</p>
+        </div>
+        <div class="dashboard-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <p class="text-text-muted text-[10px] font-bold uppercase tracking-widest mb-1">Upcoming Events</p>
+            <p class="text-3xl font-black font-display text-text-main">{{ upcoming_count }}</p>
+        </div>
+        <div class="dashboard-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <p class="text-text-muted text-[10px] font-bold uppercase tracking-widest mb-1">Engagement Points</p>
+            <p class="text-3xl font-black font-display text-green-500">120</p>
+        </div>
+    </div>
+
+    <section class="animate-entrance" style="animation-delay: 0.4s;">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-black font-display tracking-tight text-text-main">My Registered Seminars</h2>
+            <span class="px-4 py-1.5 bg-text-main text-white text-[10px] font-bold rounded-full uppercase tracking-widest shadow-lg shadow-gray-200">
+                {{ my_registrations.count }} Events
+            </span>
         </div>
 
-        <section class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-12 flex flex-col md:flex-row items-center gap-8">
-            <div class="size-24 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined text-5xl">account_circle</span>
-            </div>
-            <div class="text-center md:text-left flex-1">
-                <h1 class="text-3xl font-black font-display tracking-tight">{{ user.username }}</h1>
-                <p class="text-slate-500">{{ user.email }}</p>
-                <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-500">Member Since {{ user.date_joined|date:"Y" }}</span>
-                    <span class="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-primary">Student Account</span>
-                </div>
-            </div>
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="px-6 py-2 border border-red-100 text-red-500 rounded-xl font-bold text-sm hover:bg-red-50 transition-all">Logout</button>
-            </form>
-        </section>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl flex items-center gap-3 text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300">
-                    <span class="material-symbols-outlined text-lg">check_circle</span> {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <section>
-            <div class="flex items-center justify-between mb-8">
-                <h2 class="text-2xl font-black font-display tracking-tight">My Registered Seminars</h2>
-                <span class="px-3 py-1 bg-slate-900 text-white text-[10px] font-bold rounded-full">{{ my_registrations.count }} Events</span>
-            </div>
-
-            <div class="grid gap-4">
-                {% for reg in my_registrations %}
-                <article class="relative bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all cursor-pointer">
-                    <div class="flex items-center gap-6">
-                        <div class="hidden sm:block size-14 rounded-xl overflow-hidden bg-slate-100">
-                            {% if reg.event.banner_image %}
-                                <img src="{{ reg.event.banner_image.url }}" class="w-full h-full object-cover">
-                            {% endif %}
-                        </div>
-                        <div>
-                            <a href="{% url 'event_detail' reg.event.id %}" class="font-bold text-lg group-hover:text-primary transition-colors after:absolute after:inset-0 after:z-10">
+        <div class="grid gap-4">
+            {% for reg in my_registrations %}
+            <article class="dashboard-card relative bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group">
+                <div class="flex items-center gap-6">
+                    <div class="hidden sm:block size-16 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                        {% if reg.event.banner_image %}
+                            <img src="{{ reg.event.banner_image.url }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-slate-300">
+                                <span class="material-symbols-outlined">image</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <a href="{% url 'event_detail' reg.event.id %}" class="font-bold text-lg text-text-main group-hover:text-primary transition-colors after:absolute after:inset-0 after:z-10">
                                 {{ reg.event.title }}
                             </a>
-                            <div class="flex items-center gap-4 mt-1 text-xs text-slate-400 font-medium">
-                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_month</span> {{ reg.event.date|date:"M d" }}</span>
-                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> {{ reg.event.location }}</span>
-                            </div>
+                            <span class="status-pulse px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold rounded uppercase">Active</span>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs text-text-muted font-medium">
+                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_month</span> {{ reg.event.date|date:"M d, Y" }}</span>
+                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm text-primary">location_on</span> {{ reg.event.location }}</span>
                         </div>
                     </div>
-                    
-                    <div class="relative z-30">
-                        <form action="{% url 'cancel_event' reg.id %}" method="post" onsubmit="return confirm('Are you sure you want to cancel this registration?');">
-                            {% csrf_token %}
-                            <button type="submit" class="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Cancel Registration">
-                                <span class="material-symbols-outlined">cancel</span>
-                            </button>
-                        </form>
-                    </div>
-                </article>
-                {% empty %}
-                <div class="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-                    <span class="material-symbols-outlined text-5xl text-slate-300 mb-4">event_busy</span>
-                    <p class="text-slate-500 font-medium">You haven't registered for any events yet.</p>
-                    <a href="{% url 'customer_dashboard' %}" class="inline-block mt-4 text-primary font-bold hover:underline">Browse Events</a>
                 </div>
-                {% endfor %}
+                
+                <div class="relative z-30">
+                    <form id="cancel-form-{{ reg.id }}" action="{% url 'cancel_event' reg.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="button" 
+                                onclick="openCancelModal('{{ reg.id }}', '{{ reg.event.title|escapejs }}')"
+                                class="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all flex items-center justify-center min-w-[44px] min-h-[44px]" 
+                                title="Cancel Registration">
+                            <span class="btn-text-container">
+                                <span class="material-symbols-outlined">cancel</span>
+                            </span>
+                            <div class="btn-spinner-container hidden items-center justify-center">
+                                <div class="w-5 h-5 border-2 border-slate-200 border-t-red-500 rounded-full animate-spin"></div>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+            </article>
+            {% empty %}
+            <div class="text-center py-24 bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                <div class="size-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="material-symbols-outlined text-4xl text-slate-300">event_busy</span>
+                </div>
+                <p class="text-text-main font-bold text-lg mb-2">No registrations found</p>
+                <p class="text-text-muted text-sm mb-6">You haven't registered for any upcoming events yet.</p>
+                <a href="{% url 'full_schedule' %}?origin=dashboard" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-100">
+                    Explore Events
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
             </div>
-        </section>
-    </main>
-
-    <footer class="bg-background-dark text-white py-12 mt-auto">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center gap-6">
-            <p class="text-gray-500 text-xs tracking-widest uppercase font-display text-center">
-                © 2026 Advance Programming • TechHub. All rights reserved.
-            </p>
-            <a href="https://github.com/qkgalias/events_management" 
-               target="_blank" 
-               class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-300 group">
-                <span class="text-[10px] font-bold tracking-tighter uppercase">View Repository</span>
-            </a>
+            {% endfor %}
         </div>
-    </footer>
+    </section>
+</main>
 
-</body>
-</html>
+<div id="cancel-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
+        <div class="p-8 text-center">
+            <div class="size-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="material-symbols-outlined text-4xl">warning</span>
+            </div>
+            <h3 class="text-xl font-black text-text-main font-display mb-2 text-balance">Cancel your registration?</h3>
+            <p class="text-text-muted text-sm mb-8 leading-relaxed">
+                Are you sure you want to cancel your registration for <span id="cancel-event-name" class="font-bold text-primary"></span>?
+            </p>
+            <div class="flex flex-col gap-3">
+                <button id="confirm-cancel-btn" onclick="executeCancellation()" class="w-full py-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-100 flex items-center justify-center gap-2">
+                    <span class="btn-text-container flex items-center gap-2">Yes, Cancel</span>
+                    <div class="btn-spinner-container hidden">
+                        <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    </div>
+                </button>
+                <button onclick="closeCancelModal()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 text-text-muted font-bold rounded-xl transition-all">
+                    No, Go Back
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let activeCancelFormId = null;
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('cancel-modal');
+        if (event.target == modal) closeCancelModal();
+    }
+
+    function openCancelModal(regId, eventTitle) {
+        activeCancelFormId = `cancel-form-${regId}`;
+        document.getElementById('cancel-event-name').textContent = eventTitle;
+        const modal = document.getElementById('cancel-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCancelModal() {
+        const modal = document.getElementById('cancel-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+        activeCancelFormId = null;
+    }
+
+    function executeCancellation() {
+        if (!activeCancelFormId) return;
+        const form = document.getElementById(activeCancelFormId);
+        const modalBtn = document.getElementById('confirm-cancel-btn');
+        modalBtn.disabled = true;
+        modalBtn.querySelector('.btn-text-container').classList.add('hidden');
+        modalBtn.querySelector('.btn-spinner-container').classList.remove('hidden');
+        modalBtn.querySelector('.btn-spinner-container').classList.add('flex');
+        setTimeout(() => { form.submit(); }, 800);
+    }
+</script>
+{% endblock %}

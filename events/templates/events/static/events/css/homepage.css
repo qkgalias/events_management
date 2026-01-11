@@ -1,0 +1,142 @@
+/* Homepage and Event Styles
+   Main styles for the homepage and shared event schedule components */
+
+/* 1. CORE SETUP & THEME VARIABLES */
+:root {
+    --primary: #359EFF;
+    --primary-dark: #002bb8;
+    --bg-light: #f5f7f8;
+    --card-bg: #ffffff;
+    --text-main: #0c101d;
+    --text-muted: #64748b;
+    /* Default variable for flicker-free scaling controlled by Head Script */
+    --hero-scale: 1.2;
+}
+
+html {
+    /* Kept for manual "Explore" clicks; JS handles instant scroll restoration */
+    scroll-behavior: smooth; 
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-light);
+    overflow-x: hidden; 
+}
+
+/* 2. TECH-THEMED SCROLLBAR */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-light); }
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 5px;
+    border: 2px solid var(--bg-light);
+}
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* 3. PARALLAX ZOOM */
+#hero-image {
+    background-attachment: fixed; 
+    background-size: cover;
+    background-position: center;
+    
+    /* translateZ(0) triggers Hardware Acceleration */
+    transform: scale(var(--hero-scale)) translateZ(0);
+    
+    /* CRITICAL: Disable all transitions to prevent "flicker jump" during restoration */
+    transition: none !important; 
+    
+    /* Performance optimizations for compositor */
+    will-change: transform; 
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Prevent text jitter during parallax fade-in */
+#hero-content {
+    transform: translateZ(0);
+    will-change: opacity;
+}
+
+/* 4. CONTENT PULL-UP EFFECT */
+.content-reveal {
+    position: relative;
+    z-index: 20;
+    margin-top: -12vh; 
+    background-color: var(--bg-light);
+    border-radius: 50px 50px 0 0; 
+    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.05);
+}
+
+/* 5. REVEAL-ON-SCROLL ANIMATIONS */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger effect for cards */
+.reveal:nth-child(2) { transition-delay: 0.15s; }
+.reveal:nth-child(3) { transition-delay: 0.3s; }
+
+/* 6. CARD & UI COMPONENTS */
+.shadow-card {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+}
+
+.event-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #edf2f7;
+}
+
+.event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px -10px rgba(0, 59, 255, 0.15);
+}
+
+/* Date Badge Glassmorphism */
+.date-badge {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 7. LOADING SPINNER VISUAL */
+.spinner {
+    display: none; /* Hidden by default */
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* State triggered by triggerLoading() in base.html */
+.btn-loading .spinner {
+    display: block;
+}
+
+/* Hides button text and icons when loading */
+.btn-loading .btn-text, 
+.btn-loading .material-symbols-outlined {
+    display: none !important;
+}
+
+/* UTILITIES */
+.text-gradient {
+    background: linear-gradient(to right, #60a5fa, var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

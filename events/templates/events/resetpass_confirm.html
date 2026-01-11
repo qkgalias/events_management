@@ -1,0 +1,195 @@
+{% extends 'events/base.html' %}
+{% load static %}
+
+{% block title %}Set New Password - TechHub{% endblock %}
+
+{% block extra_head %}
+<style>
+    .welcome-text { font-family: "Space Grotesk", sans-serif !important; }
+    
+    .reset-form-custom input {
+        display: block !important;
+        width: 100% !important;
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        background-color: #ffffff !important;
+        color: #0c101d !important;
+        height: 3.5rem !important;
+        padding: 0.75rem 3.5rem 0.75rem 1.25rem !important;
+        font-family: "Noto Sans", sans-serif !important;
+        font-size: 0.875rem !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .reset-form-custom input:focus {
+        outline: none !important;
+        border-color: #359EFF !important;
+        box-shadow: 0 0 0 4px rgba(53, 158, 255, 0.1) !important;
+    }
+
+    .input-match-success { border: 2px solid #10b981 !important; }
+    .input-match-error { border: 2px solid #ef4444 !important; }
+
+    .field-icon-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 3.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        color: #94a3b8;
+    }
+
+    .password-toggle-btn {
+        pointer-events: auto !important;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+    }
+
+    .validation-hint {
+        font-size: 10px;
+        font-weight: 700;
+        margin-top: 4px;
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-xl mx-auto px-6 pt-32 pb-12 flex-1 w-full flex flex-col justify-center">
+    
+    <section class="bg-white rounded-3xl p-10 shadow-xl shadow-slate-200/50 border border-slate-100 animate-in fade-in zoom-in duration-500">
+        
+        <div class="text-center mb-10">
+            <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto mb-6">
+                <span class="material-symbols-outlined text-3xl">lock_reset</span>
+            </div>
+            <h1 class="welcome-text text-3xl font-bold tracking-tight text-slate-900 leading-tight">Secure Your Account</h1>
+            <p class="mt-3 text-sm text-slate-500 font-sans leading-relaxed">
+                Please enter and confirm your new password below. Ensure it's something secure and unique.
+            </p>
+        </div>
+
+        {% if validlink %}
+        <form method="post" action="." class="space-y-6" id="confirm-reset-form">
+            {% csrf_token %}
+
+            <div class="group">
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-sans transition-colors group-focus-within:text-primary">
+                    New Password
+                </label>
+                <div class="relative reset-form-custom">
+                    {{ form.new_password1 }}
+                    <button type="button" onclick="togglePasswordVisibility('id_new_password1', 'p1-icon')" class="field-icon-container password-toggle-btn">
+                        <span id="p1-icon" class="material-symbols-outlined text-[22px]">visibility</span>
+                    </button>
+                </div>
+                <p id="pass-hint" class="validation-hint text-slate-400">At least 8 characters required</p>
+            </div>
+
+            <div class="group">
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-sans transition-colors group-focus-within:text-primary">
+                    Confirm New Password
+                </label>
+                <div class="relative reset-form-custom">
+                    {{ form.new_password2 }}
+                    <button type="button" onclick="togglePasswordVisibility('id_new_password2', 'p2-icon')" class="field-icon-container password-toggle-btn">
+                        <span id="p2-icon" class="material-symbols-outlined text-[22px]">visibility</span>
+                    </button>
+                </div>
+                <p id="match-hint" class="validation-hint hidden"></p>
+            </div>
+
+            <button type="submit" 
+                    id="reset-submit-btn"
+                    onclick="triggerLoading(this, event)"
+                    class="group w-full h-14 bg-primary hover:bg-[#2b85db] text-white text-sm font-bold rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                
+                <span class="btn-text-container flex items-center gap-2">
+                    Update Password
+                    <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">verified_user</span>
+                </span>
+
+                <div class="btn-spinner-container hidden items-center justify-center">
+                    <div class="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                </div>
+            </button>
+        </form>
+        {% else %}
+        <div class="text-center py-6">
+            <div class="p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 mb-6 flex items-center gap-3 justify-center">
+                <span class="material-symbols-outlined">error</span>
+                <span class="font-bold text-sm">Reset link has expired or is invalid.</span>
+            </div>
+            <a href="{% url 'password_reset' %}" class="text-primary font-bold hover:underline">Request a new link</a>
+        </div>
+        {% endif %}
+    </section>
+</main>
+
+<script>
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.textContent = "visibility_off";
+        } else {
+            input.type = "password";
+            icon.textContent = "visibility";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('confirm-reset-form');
+        if (!form) return;
+
+        const p1 = form.querySelector('input[name="new_password1"]');
+        const p2 = form.querySelector('input[name="new_password2"]');
+        const submitBtn = document.getElementById('reset-submit-btn');
+
+        const validate = () => {
+            let isValid = true;
+
+            if (p1.value.length > 0) {
+                if (p1.value.length < 8) {
+                    applyStyle(p1, 'pass-hint', 'Minimum 8 characters required', false);
+                    isValid = false;
+                } else {
+                    applyStyle(p1, 'pass-hint', 'Strong password', true);
+                }
+            }
+
+            if (p1.value.length > 0 && p2.value.length > 0) {
+                if (p1.value !== p2.value) {
+                    applyStyle(p2, 'match-hint', 'Passwords do not match', false);
+                    isValid = false;
+                } else {
+                    applyStyle(p2, 'match-hint', 'Passwords match', true);
+                }
+            }
+
+            submitBtn.disabled = !isValid || !p1.value || !p2.value;
+        };
+
+        function applyStyle(el, hintId, msg, isSuccess) {
+            const hint = document.getElementById(hintId);
+            el.classList.remove('input-match-success', 'input-match-error');
+            if (isSuccess) {
+                el.classList.add('input-match-success');
+                if (hint) { hint.textContent = msg; hint.style.color = '#10b981'; hint.classList.remove('hidden'); }
+            } else {
+                el.classList.add('input-match-error');
+                if (hint) { hint.textContent = msg; hint.style.color = '#ef4444'; hint.classList.remove('hidden'); }
+            }
+        }
+
+        [p1, p2].forEach(input => input.addEventListener('input', validate));
+        submitBtn.disabled = true;
+    });
+</script>
+{% endblock %}

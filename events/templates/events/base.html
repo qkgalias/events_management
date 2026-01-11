@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light scroll-smooth" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}TechHub{% endblock %}</title>
+    
+    <script>
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: "#359EFF", 
+                        "background-dark": "#0f1923",
+                        "text-main": "#0c101d",
+                        "text-muted": "#64748b"
+                    },
+                    fontFamily: { display: "Space Grotesk", body: ["Noto Sans", "sans-serif"] }
+                }
+            }
+        };
+    </script>
+    
+    <link rel="stylesheet" href="{% static 'events/css/homepage.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-[#f5f7f8] antialiased font-body min-h-screen flex flex-col">
+
+    <nav id="main-nav" class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 h-20 flex items-center transition-all duration-500 {% block nav_initial_class %}{% endblock %}">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="{% url 'homepage' %}" class="flex items-center gap-3 group transition-opacity hover:opacity-80">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg">
+                    <span class="material-symbols-outlined text-xl">terminal</span>
+                </div>
+                <h1 class="font-display font-bold text-xl tracking-tight text-text-main">TechHub<span class="text-primary">.</span></h1>
+            </a>
+            
+            <div class="flex items-center gap-6">
+                {% if user.is_authenticated %}
+                    <div class="hidden md:flex flex-col items-end">
+                        <span class="text-[10px] uppercase tracking-widest text-text-muted font-bold">Authenticated</span>
+                        <a href="{% url 'profile_dashboard' %}" class="text-sm font-bold text-text-main hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4 decoration-2">
+                            {{ user.username }}
+                        </a>
+                    </div>
+
+                    {% if user.is_staff %}
+                        <a href="{% url 'admin:index' %}" class="group flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-[10px] font-bold hover:bg-primary transition-all shadow-lg shadow-gray-200">
+                            <span class="material-symbols-outlined text-sm">settings_account_box</span>
+                            Management
+                        </a>
+                    {% endif %}
+
+                    {% if request.resolver_match.url_name != 'profile_dashboard' %}
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="button" 
+                                onclick="triggerLoading(this, event)"
+                                class="flex items-center gap-1 text-red-500 font-bold text-sm hover:text-red-700 transition-colors disabled:opacity-50">
+                            <span class="btn-text-container flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">logout</span> Logout
+                            </span>
+                            <div class="btn-spinner-container hidden items-center justify-center">
+                                <div class="w-4 h-4 border-2 border-red-200 border-t-red-500 rounded-full animate-spin"></div>
+                            </div>
+                        </button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                    <button onclick="openAuthModal('login')" class="text-sm font-bold text-text-main hover:text-primary transition-colors">Login</button>
+                    <button onclick="openAuthModal('signup')" class="px-6 py-2 bg-primary text-white rounded-xl font-display font-bold text-sm shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2">
+                        Get Started <span class="material-symbols-outlined text-xs">rocket_launch</span>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div id="message-container" class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md px-4 pointer-events-none">
+        {% for message in messages %}
+        <div class="flex items-center p-4 mb-4 text-sm rounded-2xl border shadow-xl pointer-events-auto transform transition-all duration-500 animate-in fade-in slide-in-from-top-8
+            {% if 'success' in message.tags or 'info' in message.tags %}bg-green-50 text-green-800 border-green-200
+            {% elif 'error' in message.tags %}bg-red-50 text-red-800 border-red-200
+            {% else %}bg-blue-50 text-blue-800 border-blue-200{% endif %}" role="alert">
+            
+            <span class="material-symbols-outlined me-3">
+                {% if 'success' in message.tags or 'info' in message.tags %}check_circle{% else %}info{% endif %}
+            </span>
+            
+            <div class="font-bold flex-1">
+                {{ message }}
+            </div>
+            
+            <button type="button" class="ms-3 text-inherit opacity-50 hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()">
+                <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="flex-grow">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="bg-background-dark text-white py-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center gap-6">
+            <p class="text-gray-500 text-xs tracking-widest uppercase font-display text-center">
+                © 2026 Advance Programming • TechHub. All rights reserved.
+            </p>
+            <a href="https://github.com/qkgalias/events_management" target="_blank" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-300">
+                <span class="text-[10px] font-bold tracking-tighter uppercase">View Repository</span>
+            </a>
+        </div>
+    </footer>
+
+    {% include 'events/components/auth_modal.html' %}
+
+    <script>
+        /** Trigger Loading Spinner on Buttons **/
+        function triggerLoading(btn, event) {
+            if (event) event.preventDefault();
+            if (!btn || btn.disabled) return;
+
+            const btnText = btn.querySelector('.btn-text-container');
+            const spinner = btn.querySelector('.btn-spinner-container');
+
+            if (btnText && spinner) {
+                btnText.classList.add('hidden');       
+                spinner.classList.remove('hidden');    
+                spinner.classList.add('flex');         
+            }
+
+            btn.disabled = true;
+
+            const form = btn.closest('form');
+            if (form) {
+                setTimeout(() => {
+                    form.submit();
+                }, 800);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. AUTO-HIDE GLOBAL MESSAGES AFTER 5 SECONDS
+            const messages = document.querySelectorAll('#message-container > div');
+            messages.forEach(msg => {
+                setTimeout(() => {
+                    msg.classList.add('opacity-0', '-translate-y-4');
+                    setTimeout(() => msg.remove(), 500);
+                }, 5000);
+            });
+
+            // 2. CHECK URL FOR SUCCESS PARAMETERS (SIGNUP OR RESET)
+            const urlParams = new URLSearchParams(window.location.search);
+            const signupSuccess = urlParams.get('signup_success') === 'true';
+            const resetSuccess = urlParams.get('reset_success') === 'true';
+
+            if (signupSuccess || resetSuccess) {
+                setTimeout(() => {
+                    // Open modal on Login side
+                    openAuthModal('login');
+                    
+                    // Clean the URL to remove parameters without reloading the page
+                    const cleanUrl = window.location.origin + window.location.pathname;
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }, 300);
+            }
+        });
+
+        // AUTH MODAL FUNCTIONS
+        function openAuthModal(mode = 'login') {
+            const modal = document.getElementById('auth-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden'; 
+                toggleAuthMode(mode);
+
+                // AUTO-FOCUS: Automatically select the first relevant input field
+                setTimeout(() => {
+                    const selector = mode === 'login' ? '#login-form-container input[name="username"]' : '#signup-form-container input[name="username"]';
+                    const input = document.querySelector(selector);
+                    if (input) input.focus();
+                }, 400); // Wait for modal transition to finish
+            }
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = 'auto'; 
+                
+                const loginForm = document.querySelector('#login-form-container form');
+                if (loginForm) loginForm.reset();
+
+                const signupForm = document.querySelector('#signup-form-container form');
+                if (signupForm) {
+                    signupForm.reset();
+                    signupForm.querySelectorAll('input').forEach(i => {
+                        i.classList.remove('input-match-success', 'input-match-error');
+                    });
+                    const btn = document.getElementById('signup-submit-btn');
+                    if (btn) btn.disabled = true;
+                }
+            }
+        }
+
+        function toggleAuthMode(mode) {
+            const lCont = document.getElementById('login-form-container');
+            const sCont = document.getElementById('signup-form-container');
+            if (lCont && sCont) {
+                lCont.classList.toggle('hidden', mode !== 'login');
+                sCont.classList.toggle('hidden', mode !== 'signup');
+
+                // Re-focus on switch
+                setTimeout(() => {
+                    const selector = mode === 'login' ? '#login-form-container input[name="username"]' : '#signup-form-container input[name="username"]';
+                    const input = document.querySelector(selector);
+                    if (input) input.focus();
+                }, 50);
+            }
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
