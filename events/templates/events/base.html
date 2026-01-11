@@ -83,10 +83,12 @@
                     </form>
                     {% endif %}
                 {% else %}
+                    {% block nav_auth_links %}
                     <button onclick="openAuthModal('login')" class="text-sm font-bold text-text-main hover:text-primary transition-colors">Login</button>
                     <button onclick="openAuthModal('signup')" class="px-6 py-2 bg-primary text-white rounded-xl font-display font-bold text-sm shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2">
                         Get Started <span class="material-symbols-outlined text-xs">rocket_launch</span>
                     </button>
+                    {% endblock nav_auth_links %}
                 {% endif %}
             </div>
         </div>
