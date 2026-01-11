@@ -11,10 +11,14 @@ from django.urls import reverse
 def signup(request):
     """Handles standalone signup requests and redirections."""
     if request.method == 'POST':
+        # Server-side validation for Terms and Conditions checkbox
+        if not request.POST.get('terms_check'):
+            messages.error(request, "You must agree to the Terms of Service to create an account.")
+            return redirect('homepage')
+
         form = StyledUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Redirect with query parameter instead of global message
             return redirect(reverse('homepage') + '?signup_success=true')
     else:
         form = StyledUserCreationForm()
@@ -44,10 +48,14 @@ def homepage(request):
                 messages.success(request, f"Successfully logged in as {user.username}")
                 return redirect('homepage')
         elif 'email' in request.POST:
+            # Server-side Terms check for modal-based signup
+            if not request.POST.get('terms_check'):
+                messages.error(request, "You must agree to the Terms of Service to register.")
+                return redirect('homepage')
+
             signup_form = StyledUserCreationForm(request.POST)
             if signup_form.is_valid():
                 signup_form.save()
-                # Redirect with query parameter
                 return redirect(reverse('homepage') + '?signup_success=true')
     
     events = Event.objects.all()
@@ -83,10 +91,14 @@ def full_schedule(request):
                 messages.success(request, f"Successfully logged in as {user.username}")
                 return redirect('full_schedule')
         elif 'email' in request.POST:
+            # Server-side Terms check
+            if not request.POST.get('terms_check'):
+                messages.error(request, "You must agree to the Terms of Service to register.")
+                return redirect('full_schedule')
+
             signup_form = StyledUserCreationForm(request.POST)
             if signup_form.is_valid():
                 signup_form.save()
-                # Redirect with query parameter
                 return redirect(reverse('full_schedule') + '?signup_success=true')
 
     events = Event.objects.all().order_by('date', 'time')
@@ -140,10 +152,14 @@ def event_detail(request, event_id):
                 messages.success(request, f"Successfully logged in as {user.username}")
                 return redirect('event_detail', event_id=event.id)
         elif 'email' in request.POST:
+            # Server-side Terms check
+            if not request.POST.get('terms_check'):
+                messages.error(request, "You must agree to the Terms of Service to register.")
+                return redirect('event_detail', event_id=event.id)
+
             signup_form = StyledUserCreationForm(request.POST)
             if signup_form.is_valid():
                 signup_form.save()
-                # Redirect with query parameter
                 return redirect(reverse('event_detail', kwargs={'event_id': event.id}) + '?signup_success=true')
 
     is_registered = False

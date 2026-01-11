@@ -49,11 +49,11 @@
         top: 0;
         bottom: 0;
         right: 0;
-        width: 3.5rem; /* Matches the padding-right of the input */
+        width: 3.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        pointer-events: none; /* Allows clicking through to input */
+        pointer-events: none;
         color: #94a3b8;
         transition: color 0.2s ease;
     }
@@ -62,9 +62,8 @@
         color: #359EFF;
     }
 
-    /* Interactive Toggle Button overrides */
     .password-toggle-btn {
-        pointer-events: auto !important; /* Re-enable clicking for buttons */
+        pointer-events: auto !important;
         cursor: pointer;
         background: transparent;
         border: none;
@@ -78,7 +77,7 @@
 
 <div class="px-8 pt-10 pb-4 bg-white rounded-t-2xl">
     <div class="mb-8 text-center">
-        <h2 class="signup-header text-2xl font-bold tracking-tight text-slate-900 leading-tight">Create Account</h2>
+        <h2 class="signup-header text-2xl font-bold tracking-tight text-slate-900 leading-tight">Create an Account</h2>
         <p class="mt-2 text-sm text-slate-500 font-sans leading-relaxed">Join TechHub to discover and manage your IT events.</p>
     </div>
 
@@ -112,7 +111,7 @@
                 Email Address
             </label>
             <div class="relative signup-form-custom">
-                <input type="email" name="email" id="id_email" class="w-full" value="{{ request.POST.email|default:'' }}" placeholder="you@example.com">
+                <input type="email" name="email" id="id_email" class="w-full" value="{{ request.POST.email|default:'' }}" required />
                 <div class="field-icon-container">
                     <span class="material-symbols-outlined text-[20px]">mail</span>
                 </div>
@@ -146,6 +145,37 @@
             <p id="match-hint" class="validation-hint hidden"></p>
         </div>
 
+        <div class="mt-4 mb-6">
+            <div class="flex items-start gap-3 group">
+                <div class="flex items-center h-5">
+                    <input id="terms_check" name="terms_check" type="checkbox" required
+                           class="w-4 h-4 text-primary border-slate-200 rounded focus:ring-primary transition-all cursor-pointer">
+                </div>
+                <div class="text-[11px] leading-tight">
+                    <label for="terms_check" class="text-slate-500 font-medium font-sans cursor-pointer group-hover:text-slate-700">
+                        I agree to the 
+                        <button type="button" onclick="toggleTermsDropdown()" class="text-primary hover:underline font-bold inline-flex items-center gap-1 focus:outline-none">
+                            Terms of Service
+                            <span id="terms-chevron" class="material-symbols-outlined text-[14px] transition-transform duration-300">expand_more</span>
+                        </button>
+                    </label>
+                </div>
+            </div>
+
+            <div id="terms-dropdown" class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out opacity-0">
+                <div class="mt-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[10px] text-slate-500 font-sans leading-relaxed shadow-inner">
+                    <p class="mb-2 font-bold text-slate-700">TechHub Usage Rules:</p>
+                    <ul class="list-disc ml-4 space-y-1">
+                        <li>Educational Use: This platform is a student project for the 2025-2026 Advanced Programming project.</li>
+                        <li>Data Accuracy: You agree to provide valid information for event registration and account recovery.</li>
+                        <li>Security: Your credentials are encrypted and managed via secure .env and SMTP protocols.</li>
+                        <li>Fair Usage: Unauthorized access to system administration or disruption of event cycles is prohibited.</li>
+                        <li>Privacy: We respect your data privacy and adhere to relevant data protection regulations.</
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <button type="submit" 
                 id="signup-submit-btn" 
                 onclick="triggerLoading(this, event)"
@@ -164,7 +194,6 @@
 </div>
 
 <script>
-    // Toggle Password Visibility //
     function togglePasswordVisibility(inputId, iconId) {
         const input = document.getElementById(inputId);
         const icon = document.getElementById(iconId);
@@ -178,13 +207,28 @@
         }
     }
 
-    // Real-Time Validation Logic
+    function toggleTermsDropdown() {
+        const dropdown = document.getElementById('terms-dropdown');
+        const chevron = document.getElementById('terms-chevron');
+        
+        if (dropdown.style.maxHeight && dropdown.style.maxHeight !== '0px') {
+            dropdown.style.maxHeight = '0px';
+            dropdown.style.opacity = '0';
+            chevron.style.transform = 'rotate(0deg)';
+        } else {
+            dropdown.style.maxHeight = '250px'; 
+            dropdown.style.opacity = '1';
+            chevron.style.transform = 'rotate(180deg)';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('signup-form');
         const username = form.querySelector('input[name="username"]');
         const email = form.querySelector('input[name="email"]');
         const p1 = form.querySelector('input[name="password1"]');
         const p2 = form.querySelector('input[name="password2"]');
+        const termsCheck = document.getElementById('terms_check');
         const submitBtn = document.getElementById('signup-submit-btn');
 
         const validate = () => {
@@ -240,7 +284,7 @@
                 removeStyle(p2, 'match-hint');
             }
 
-            const allFilled = username.value && email.value && p1.value && p2.value;
+            const allFilled = username.value && email.value && p1.value && p2.value && termsCheck.checked;
             submitBtn.disabled = !isValid || !allFilled;
         };
 
@@ -274,6 +318,10 @@
         form.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', validate);
         });
+        
+        if (termsCheck) {
+            termsCheck.addEventListener('change', validate);
+        }
 
         submitBtn.disabled = true;
     });
