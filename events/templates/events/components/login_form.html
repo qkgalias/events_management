@@ -177,6 +177,24 @@
             });
         }
 
+        function resetLoginForm() {
+    const loginForm = document.getElementById('login-form');
+    const submitBtn = document.getElementById('login-submit-btn');
+    
+    if (loginForm) {
+        loginForm.reset(); // Clears all text and password fields
+        
+        // If you have validation hints or error flags, hide them here
+        const errorFlag = document.getElementById('login-error-flag');
+        if (errorFlag) errorFlag.classList.add('hidden');
+    }
+
+    // Disable the submit button again after resetting
+    if (submitBtn) {
+        submitBtn.disabled = true;
+    }
+}
+
         toggleButton();
     });
 </script>

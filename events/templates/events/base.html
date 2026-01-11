@@ -159,7 +159,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. AUTO-HIDE GLOBAL MESSAGES AFTER 5 SECONDS
             const messages = document.querySelectorAll('#message-container > div');
             messages.forEach(msg => {
                 setTimeout(() => {
@@ -168,17 +167,13 @@
                 }, 5000);
             });
 
-            // 2. CHECK URL FOR SUCCESS PARAMETERS (SIGNUP OR RESET)
             const urlParams = new URLSearchParams(window.location.search);
             const signupSuccess = urlParams.get('signup_success') === 'true';
             const resetSuccess = urlParams.get('reset_success') === 'true';
 
             if (signupSuccess || resetSuccess) {
                 setTimeout(() => {
-                    // Open modal on Login side
                     openAuthModal('login');
-                    
-                    // Clean the URL to remove parameters without reloading the page
                     const cleanUrl = window.location.origin + window.location.pathname;
                     window.history.replaceState({}, document.title, cleanUrl);
                 }, 300);
@@ -194,15 +189,71 @@
                 document.body.style.overflow = 'hidden'; 
                 toggleAuthMode(mode);
 
-                // AUTO-FOCUS: Automatically select the first relevant input field
                 setTimeout(() => {
                     const selector = mode === 'login' ? '#login-form-container input[name="username"]' : '#signup-form-container input[name="username"]';
                     const input = document.querySelector(selector);
                     if (input) input.focus();
-                }, 400); // Wait for modal transition to finish
+                }, 400); 
             }
         }
 
+        /**
+         * Resets Login form state completely
+         */
+        function resetLoginForm() {
+            const loginForm = document.getElementById('login-form');
+            const loginSubmitBtn = document.getElementById('login-submit-btn');
+            const loginIcon = document.getElementById('login-p-icon');
+            const passwordInput = document.getElementById('id_password');
+            
+            if (loginForm) {
+                loginForm.reset();
+                const errorFlag = document.getElementById('login-error-flag');
+                if (errorFlag) errorFlag.classList.add('hidden');
+            }
+
+            if (passwordInput && loginIcon) {
+                passwordInput.type = "password";
+                loginIcon.textContent = "visibility";
+            }
+
+            if (loginSubmitBtn) loginSubmitBtn.disabled = true;
+        }
+
+        /**
+         * Resets Signup form state and UI elements
+         */
+        function resetSignupForm() {
+            const signupForm = document.getElementById('signup-form');
+            const signupBtn = document.getElementById('signup-submit-btn');
+            const termsDropdown = document.getElementById('terms-dropdown');
+            const termsChevron = document.getElementById('terms-chevron');
+            
+            if (signupForm) {
+                signupForm.reset();
+                signupForm.querySelectorAll('input').forEach(i => {
+                    i.classList.remove('input-match-success', 'input-match-error');
+                });
+
+                const hints = ['username-hint', 'email-hint', 'pass-hint', 'match-hint'];
+                hints.forEach(h => {
+                    const hintEl = document.getElementById(h);
+                    if (hintEl) hintEl.classList.add('hidden');
+                });
+            }
+
+            if (termsDropdown && termsChevron) {
+                termsDropdown.style.maxHeight = '0px';
+                termsDropdown.style.opacity = '0';
+                termsChevron.style.transform = 'rotate(0deg)';
+            }
+
+            if (signupBtn) signupBtn.disabled = true;
+        }
+
+        /**
+         * Closes modal and triggers sanitization
+         */
         function closeAuthModal() {
             const modal = document.getElementById('auth-modal');
             if (modal) {
@@ -210,17 +261,15 @@
                 modal.classList.remove('flex');
                 document.body.style.overflow = 'auto'; 
                 
-                const loginForm = document.querySelector('#login-form-container form');
-                if (loginForm) loginForm.reset();
+                resetLoginForm();
+                resetSignupForm();
 
-                const signupForm = document.querySelector('#signup-form-container form');
-                if (signupForm) {
-                    signupForm.reset();
-                    signupForm.querySelectorAll('input').forEach(i => {
-                        i.classList.remove('input-match-success', 'input-match-error');
-                    });
-                    const btn = document.getElementById('signup-submit-btn');
-                    if (btn) btn.disabled = true;
+                // Clear success parameters to prevent sticky notifications
+                const url = new URL(window.location);
+                if (url.searchParams.has('signup_success') || url.searchParams.has('reset_success')) {
+                    url.searchParams.delete('signup_success');
+                    url.searchParams.delete('reset_success');
+                    window.history.replaceState({}, document.title, url.pathname);
                 }
             }
         }
@@ -232,7 +281,6 @@
                 lCont.classList.toggle('hidden', mode !== 'login');
                 sCont.classList.toggle('hidden', mode !== 'signup');
 
-                // Re-focus on switch
                 setTimeout(() => {
                     const selector = mode === 'login' ? '#login-form-container input[name="username"]' : '#signup-form-container input[name="username"]';
                     const input = document.querySelector(selector);
