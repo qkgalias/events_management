@@ -177,13 +177,20 @@ def event_detail(request, event_id):
 # 6. JOIN EVENT 
 @login_required
 def join_event(request, event_id):
+    """Handles event registration and triggers the success modal."""
     event = get_object_or_404(Event, id=event_id)
     registration, created = Registration.objects.get_or_create(user=request.user, event=event)
+    
+    # Determine origin for redirection
+    origin = request.session.get('detail_origin', 'home')
+    
     if created:
+        # Extra tags are required for the template to identify the success modal
         messages.success(request, f'Successfully registered!', extra_tags='registration_success')
     else:
         messages.info(request, f'You are already registered for {event.title}.')
-    return redirect('event_detail', event_id=event.id)
+    
+    return redirect(reverse('event_detail', kwargs={'event_id': event.id}) + f'?origin={origin}')
 
 # 7. PROFILE DASHBOARD
 @login_required
