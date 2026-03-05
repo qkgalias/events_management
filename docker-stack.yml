@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  web:
+    image: ${IMAGE_NAME:-events-management:latest}
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: ${DEBUG:-False}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-True}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-True}
+      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-True}
+      SECURE_HSTS_SECONDS: ${SECURE_HSTS_SECONDS:-31536000}
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: ${SECURE_HSTS_INCLUDE_SUBDOMAINS:-True}
+      SECURE_HSTS_PRELOAD: ${SECURE_HSTS_PRELOAD:-True}
+      USE_X_FORWARDED_HOST: ${USE_X_FORWARDED_HOST:-True}
+      EMAIL_USER: ${EMAIL_USER:-}
+      EMAIL_PASS: ${EMAIL_PASS:-}
+      PORT: "8000"
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-3}
+    ports:
+      - target: 8000
+        published: ${APP_PORT:-8000}
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: ${DB_FILE_PATH:-/opt/events_management/db.sqlite3}
+        target: /app/db.sqlite3
+      - type: bind
+        source: ${MEDIA_PATH:-/opt/events_management/media}
+        target: /app/media
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        order: start-first
+        failure_action: rollback
+      rollback_config:
+        order: stop-first
+      placement:
+        constraints:
+          - node.role == manager
