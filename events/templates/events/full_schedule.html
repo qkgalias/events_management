@@ -126,39 +126,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script>
-        const searchInput = document.getElementById('search-input');
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const loginError = document.getElementById('login-error-flag');
-            if (loginError) {
-                openAuthModal('login');
-                loginError.classList.add('shake-error');
-            }
-
-            const signupError = document.getElementById('signup-error-flag');
-            if (signupError) openAuthModal('signup');
-        });
-
-        if (searchInput) {
-            searchInput.addEventListener('input', () => {
-                sessionStorage.setItem('searchActive', 'true');
-            });
-        }
-
-        window.onload = () => {
-            const isSearchActive = sessionStorage.getItem('searchActive');
-            const forceFocus = localStorage.getItem('forceFocus');
-
-            if (isSearchActive === 'true' || forceFocus === 'true') {
-                if (searchInput) {
-                    searchInput.focus();
-                    const val = searchInput.value;
-                    searchInput.setSelectionRange(val.length, val.length);
-                }
-                sessionStorage.removeItem('searchActive');
-                localStorage.removeItem('forceFocus');
-            }
-        };
-    </script>
+    <script defer src="{% static 'events/js/full_schedule.js' %}"></script>
 {% endblock %}

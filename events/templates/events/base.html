@@ -1,42 +1,18 @@
 {% load static %}
 <!DOCTYPE html>
-<html class="light scroll-smooth" lang="en">
+<html class="light" lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>{% block title %}TechHub{% endblock %}</title>
-    
-    <script>
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { 
-                        primary: "#359EFF", 
-                        "background-dark": "#0f1923",
-                        "text-main": "#0c101d",
-                        "text-muted": "#64748b"
-                    },
-                    fontFamily: { display: "Space Grotesk", body: ["Noto Sans", "sans-serif"] }
-                }
-            }
-        };
-    </script>
-    
+    <link rel="stylesheet" href="{% static 'events/css/tailwind.css' %}">
     <link rel="stylesheet" href="{% static 'events/css/homepage.css' %}">
-
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -50,7 +26,7 @@
                 </div>
                 <h1 class="font-display font-bold text-xl tracking-tight text-text-main">TechHub<span class="text-primary">.</span></h1>
             </a>
-            
+
             <div class="flex items-center gap-6">
                 {% if user.is_authenticated %}
                     <div class="hidden md:flex flex-col items-end">
@@ -70,7 +46,7 @@
                     {% if request.resolver_match.url_name != 'profile_dashboard' %}
                     <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}
-                        <button type="button" 
+                        <button type="button"
                                 onclick="triggerLoading(this, event)"
                                 class="flex items-center gap-1 text-red-500 font-bold text-sm hover:text-red-700 transition-colors disabled:opacity-50">
                             <span class="btn-text-container flex items-center gap-1">
@@ -101,15 +77,15 @@
             {% if 'success' in message.tags or 'info' in message.tags %}bg-green-50 text-green-800 border-green-200
             {% elif 'error' in message.tags %}bg-red-50 text-red-800 border-red-200
             {% else %}bg-blue-50 text-blue-800 border-blue-200{% endif %}" role="alert">
-            
+
             <span class="material-symbols-outlined me-3">
                 {% if 'success' in message.tags or 'info' in message.tags %}check_circle{% else %}info{% endif %}
             </span>
-            
+
             <div class="font-bold flex-1">
                 {{ message }}
             </div>
-            
+
             <button type="button" class="ms-3 text-inherit opacity-50 hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()">
                 <span class="material-symbols-outlined text-lg">close</span>
             </button>
@@ -127,7 +103,7 @@
             <p class="text-gray-500 text-xs tracking-widest uppercase font-display text-center">
                 © 2026 Advance Programming • TechHub. All rights reserved.
             </p>
-            <a href="https://github.com/qkgalias/events_management" target="_blank" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-300">
+            <a href="https://github.com/qkgalias/events_management" target="_blank" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-300" rel="noopener noreferrer">
                 <span class="text-[10px] font-bold tracking-tighter uppercase">View Repository</span>
             </a>
         </div>
@@ -135,163 +111,7 @@
 
     {% include 'events/components/auth_modal.html' %}
 
-    <script>
-        /** Trigger Loading Spinner on Buttons **/
-        function triggerLoading(btn, event) {
-            if (event) event.preventDefault();
-            if (!btn || btn.disabled) return;
-
-            const btnText = btn.querySelector('.btn-text-container');
-            const spinner = btn.querySelector('.btn-spinner-container');
-
-            if (btnText && spinner) {
-                btnText.classList.add('hidden');       
-                spinner.classList.remove('hidden');    
-                spinner.classList.add('flex');         
-            }
-
-            btn.disabled = true;
-
-            const form = btn.closest('form');
-            if (form) {
-                setTimeout(() => {
-                    form.submit();
-                }, 800);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const messages = document.querySelectorAll('#message-container > div');
-            messages.forEach(msg => {
-                setTimeout(() => {
-                    msg.classList.add('opacity-0', '-translate-y-4');
-                    setTimeout(() => msg.remove(), 500);
-                }, 5000);
-            });
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const signupSuccess = urlParams.get('signup_success') === 'true';
-            const resetSuccess = urlParams.get('reset_success') === 'true';
-
-            if (signupSuccess || resetSuccess) {
-                setTimeout(() => {
-                    openAuthModal('login');
-                    const cleanUrl = window.location.origin + window.location.pathname;
-                    window.history.replaceState({}, document.title, cleanUrl);
-                }, 300);
-            }
-        });
-
-        // AUTH MODAL FUNCTIONS
-        function openAuthModal(mode = 'login') {
-            const modal = document.getElementById('auth-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                document.body.style.overflow = 'hidden'; 
-                toggleAuthMode(mode);
-
-                setTimeout(() => {
-                    const selector = mode === 'login' ? '#login-form-container input[name="username"]' : '#signup-form-container input[name="username"]';
-                    const input = document.querySelector(selector);
-                    if (input) input.focus();
-                }, 400); 
-            }
-        }
-
-        /**
-         * Resets Login form state completely
-         */
-        function resetLoginForm() {
-            const loginForm = document.getElementById('login-form');
-            const loginSubmitBtn = document.getElementById('login-submit-btn');
-            const loginIcon = document.getElementById('login-p-icon');
-            const passwordInput = document.getElementById('id_password');
-            
-            if (loginForm) {
-                loginForm.reset();
-                const errorFlag = document.getElementById('login-error-flag');
-                if (errorFlag) errorFlag.classList.add('hidden');
-            }
-
-            if (passwordInput && loginIcon) {
-                passwordInput.type = "password";
-                loginIcon.textContent = "visibility";
-            }
-
-            if (loginSubmitBtn) loginSubmitBtn.disabled = true;
-        }
-
-        /**
-         * Resets Signup form state and UI elements
-         */
-        function resetSignupForm() {
-            const signupForm = document.getElementById('signup-form');
-            const signupBtn = document.getElementById('signup-submit-btn');
-            const termsDropdown = document.getElementById('terms-dropdown');
-            const termsChevron = document.getElementById('terms-chevron');
-            
-            if (signupForm) {
-                signupForm.reset();
-                signupForm.querySelectorAll('input').forEach(i => {
-                    i.classList.remove('input-match-success', 'input-match-error');
-                });
-
-                const hints = ['username-hint', 'email-hint', 'pass-hint', 'match-hint'];
-                hints.forEach(h => {
-                    const hintEl = document.getElementById(h);
-                    if (hintEl) hintEl.classList.add('hidden');
-                });
-            }
-
-            if (termsDropdown && termsChevron) {
-                termsDropdown.style.maxHeight = '0px';
-                termsDropdown.style.opacity = '0';
-                termsChevron.style.transform = 'rotate(0deg)';
-            }
-
-            if (signupBtn) signupBtn.disabled = true;
-        }
-
-        /**
-         * Closes modal and triggers sanitization
-         */
-        function closeAuthModal() {
-            const modal = document.getElementById('auth-modal');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.style.overflow = 'auto'; 
-                
-                resetLoginForm();
-                resetSignupForm();
-
-                // Clear success parameters to prevent sticky notifications
-                const url = new URL(window.location);
-                if (url.searchParams.has('signup_success') || url.searchParams.has('reset_success')) {
-                    url.searchParams.delete('signup_success');
-                    url.searchParams.delete('reset_success');
-                    window.history.replaceState({}, document.title, url.pathname);
-                }
-            }
-        }
-
-        function toggleAuthMode(mode) {
-            const lCont = document.getElementById('login-form-container');
-            const sCont = document.getElementById('signup-form-container');
-            if (lCont && sCont) {
-                lCont.classList.toggle('hidden', mode !== 'login');
-                sCont.classList.toggle('hidden', mode !== 'signup');
-
-                setTimeout(() => {
-                    const selector = mode === 'login' ? '#login-form-container input[name="username"]' : '#signup-form-container input[name="username"]';
-                    const input = document.querySelector(selector);
-                    if (input) input.focus();
-                }, 50);
-            }
-        }
-    </script>
-
+    <script defer src="{% static 'events/js/base.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,34 +1,74 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 User = get_user_model()
 
 class StyledAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update(
+            {
+                "placeholder": "Enter your username",
+                "autocomplete": "username",
+                "required": True,
+            }
+        )
+        self.fields["password"].widget.attrs.update(
+            {
+                "placeholder": "Enter your password",
+                "autocomplete": "current-password",
+                "required": True,
+            }
+        )
 
-class StyledUserCreationForm(forms.ModelForm):
-    # define the field here so Django knows how to validate it
+class StyledUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
-    password1 = forms.CharField(widget=forms.PasswordInput())
-    password2 = forms.CharField(widget=forms.PasswordInput())
 
     class Meta:
         model = User
-        # This connects the form to the email column in the database
-        fields = ("username", "email")
+        fields = ("username", "email", "password1", "password2")
 
-    def clean_password2(self):
-        p1 = self.cleaned_data.get("password1")
-        p2 = self.cleaned_data.get("password2")
-        if p1 and p2 and p1 != p2:
-            raise forms.ValidationError("Passwords do not match")
-        return p2
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update(
+            {
+                "placeholder": "Create a username",
+                "autocomplete": "username",
+                "required": True,
+            }
+        )
+        self.fields["email"].widget.attrs.update(
+            {
+                "placeholder": "Enter your email",
+                "autocomplete": "email",
+                "required": True,
+            }
+        )
+        self.fields["password1"].widget.attrs.update(
+            {
+                "placeholder": "Create a password",
+                "autocomplete": "new-password",
+                "required": True,
+            }
+        )
+        self.fields["password2"].widget.attrs.update(
+            {
+                "placeholder": "Confirm your password",
+                "autocomplete": "new-password",
+                "required": True,
+            }
+        )
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("An account with this email already exists.")
+        return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password1"])
+        user.email = self.cleaned_data["email"]
         if commit:
             user.save()
         return user

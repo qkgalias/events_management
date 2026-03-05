@@ -194,18 +194,4 @@
     </main>
 {% endblock %}
 
-{% block extra_js %}
-    <script>
-    /** Handle authentication errors and trigger modals **/
-    document.addEventListener("DOMContentLoaded", () => {
-        const loginError = document.getElementById('login-error-flag');
-        if (loginError) {
-            openAuthModal('login');
-            loginError.classList.add('shake-error');
-        }
-
-        const signupError = document.getElementById('signup-error-flag');
-        if (signupError) openAuthModal('signup');
-    });
-    </script>
-{% endblock %}
+{% block extra_js %}{% endblock %}

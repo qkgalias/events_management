@@ -14,8 +14,7 @@
 }
 
 html {
-    /* Kept for manual "Explore" clicks; JS handles instant scroll restoration */
-    scroll-behavior: smooth; 
+    scroll-behavior: auto;
 }
 
 body {

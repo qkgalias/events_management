@@ -5,34 +5,23 @@
 
 {% block extra_head %}
 <script>
-    /**
-     * HERO ZOOM INITIALIZATION
-     * Prevents the "Flash of Unscaled Content" during page reloads.
-     */
     (function() {
         if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
-        const savedPos = sessionStorage.getItem('dashboardScrollPos') || 0;
+        document.documentElement.classList.add('homepage-preload');
+        const savedPos = parseInt(sessionStorage.getItem('dashboardScrollPos') || '0', 10);
         const initialScale = Math.max(1, 1.2 - (savedPos / 2500));
         document.documentElement.style.setProperty('--hero-scale', initialScale);
+        if (savedPos > 0) {
+            window.scrollTo(0, savedPos);
+        }
     })();
 </script>
 
 <style>
-    /* Hero Zoom Architecture */
-    #hero-image {
-        transform: scale(var(--hero-scale)) translateZ(0); 
-        transition: none !important;
-        will-change: transform;
-        background-color: #0f1923; 
+    html.homepage-preload body {
+        visibility: hidden;
     }
 
-    #hero-content {
-        opacity: 0; 
-        transform: translateZ(0);
-        will-change: opacity;
-    }
-
-    /* Initial Nav State */
     #main-nav.nav-hidden {
         opacity: 0;
         transform: translateY(-100%);
@@ -151,11 +140,12 @@
                                                 <span class="material-symbols-outlined text-sm">task_alt</span> Enrolled
                                             </span>
                                         {% else %}
-                                            <a href="{% url 'join_event' event.id %}" 
-                                               onclick="event.stopPropagation();"
-                                               class="text-xs px-4 py-2 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all">
-                                                Join Event
-                                            </a>
+                                            <form action="{% url 'join_event' event.id %}" method="post" onclick="event.stopPropagation();">
+                                                {% csrf_token %}
+                                                <button type="submit" class="text-xs px-4 py-2 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all">
+                                                    Join Event
+                                                </button>
+                                            </form>
                                         {% endif %}
                                     {% else %}
                                         <button onclick="event.stopPropagation(); openAuthModal('login')" 
@@ -175,74 +165,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    const heroContent = document.getElementById('hero-content');
-    const mainNav = document.getElementById('main-nav');
-
-    // 1. OPTIMIZED PARALLAX & NAV LOGIC
-    let ticking = false;
-
-    function handleScroll() {
-        const scrollY = window.scrollY;
-        
-        if (!ticking) {
-            window.requestAnimationFrame(() => {
-                const scale = Math.max(1, 1.2 - (scrollY / 2500));
-                document.documentElement.style.setProperty('--hero-scale', scale);
-                
-                if(heroContent) heroContent.style.opacity = 1 - (scrollY / 600);
-
-                // Toggle Navbar Visibility
-                if (scrollY > 500) {
-                    mainNav.classList.remove('nav-hidden');
-                    sessionStorage.setItem('visitedBefore', 'true');
-                } else if (!sessionStorage.getItem('visitedBefore')) {
-                    mainNav.classList.add('nav-hidden');
-                }
-                ticking = false;
-            });
-            ticking = true;
-        }
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    // 2. PAGE INITIALIZATION
-    window.onload = () => {
-        const scrollPos = sessionStorage.getItem('dashboardScrollPos');
-        if (scrollPos) {
-            window.scrollTo({ top: parseInt(scrollPos), behavior: 'instant' });
-            handleScroll();
-        }
-
-        if (sessionStorage.getItem('visitedBefore')) mainNav.classList.remove('nav-hidden');
-
-        setTimeout(() => { if (heroContent) heroContent.style.opacity = '1'; }, 30);
-    };
-
-    // 3. ERROR & MODAL HANDLING
-    document.addEventListener("DOMContentLoaded", () => {
-        handleScroll();
-        
-        const loginError = document.getElementById('login-error-flag');
-        if (loginError) {
-            openAuthModal('login');
-            loginError.classList.add('shake-error');
-        }
-
-        const signupError = document.getElementById('signup-error-flag');
-        if (signupError) openAuthModal('signup');
-    });
-
-    window.onbeforeunload = () => {
-        sessionStorage.setItem('dashboardScrollPos', window.scrollY);
-    };
-
-    // 4. REVEAL OBSERVER
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-</script>
+<script defer src="{% static 'events/js/homepage.js' %}"></script>
 {% endblock %}

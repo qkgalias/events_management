@@ -1,85 +1,133 @@
-# Advance Programming
+# Events Management (TechHub)
 
-## GETTING STARTED
+Django-based seminar management app with modal authentication, event registration, and profile dashboard.
 
-### Setup the project locally
+## Tech Stack
+- Backend: Django 4.2
+- Frontend: Tailwind CSS (local build), custom JS
+- Database: SQLite (portfolio-friendly default)
+- Production runtime: Gunicorn + WhiteNoise
 
-- Open Terminal and run
+## Local Development
 
+### 1. Clone and enter project
 ```bash
 git clone https://github.com/qkgalias/events_management.git
-```
-
-- Navigate to the project directory
-```bash
 cd events_management
 ```
 
-- Create a virtual environment
+### 2. Python environment
 ```bash
 python3 -m venv venv
-```
-
-### Activate the virtual environment
-- On Windows
-```bash
-venv\Scripts\activate
-```
-
-- On MacOS/Linux
-```bash
 source venv/bin/activate
-```
-
-### Setting up dependencies
-- Install the required framework and libraries:
- ```bash
 pip install -r requirements.txt
- ```
+```
 
-### Environment Configuration
-- Create a .env file in the root directory to securely store your credentials.
-- Add the following variables (Use a 16-character Google App Password for the email):
- ```bash
- # .env file
-EMAIL_USER=your-new-gmail-account@gmail.com
-EMAIL_PASS=your-16-character-app-password
- ```
-
-### Database setup
-- Apply database migrations to create necessary tables
+### 3. Frontend assets (Tailwind local build)
 ```bash
-python manage.py makemigrations accounts events
+npm install
+npm run build:css
+```
+
+For active frontend editing:
+```bash
+npm run watch:css
+```
+
+### 4. Environment variables
+Create `.env` in project root.
+
+```env
+# Core
+SECRET_KEY=replace-with-a-long-random-secret
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+CSRF_TRUSTED_ORIGINS=http://127.0.0.1,http://localhost
+
+# Security toggles (recommended for production)
+SECURE_SSL_REDIRECT=False
+SESSION_COOKIE_SECURE=False
+CSRF_COOKIE_SECURE=False
+SECURE_HSTS_SECONDS=0
+SECURE_HSTS_INCLUDE_SUBDOMAINS=False
+SECURE_HSTS_PRELOAD=False
+USE_X_FORWARDED_HOST=True
+
+# Email
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+```
+
+### 5. Database and run
+```bash
 python manage.py migrate
-```
-
-### Images Setup
-- The /media/speakers/ and /media/event_banners/ folders should already exist in your local directory after cloning.
-```bash
-This project uses .gitkeep to preserve the media directory structure on GitHub. 
-```
-- Action: manually place the images set into these respective subfolders.
-
-- import .json file to populate dashboard with the 5 prepared events and 5 speakers, run the following:
-```bash
 python manage.py loaddata dummy_data.json
-```
-
-### Create a superuser (to access Django Admin Panel)
-```bash
 python manage.py createsuperuser
-```
-
-### Run the system
-- launch the local development server:
-```bash
 python manage.py runserver
 ```
-### Once the server is running, you can access the system at:
-- http://127.0.0.1:8000/
----
 
-## TECH STACK
-- Backend: [Django 4.2.27 ](https://docs.djangoproject.com/en/4.2/)
-- Frontend: [Tailwind CSS Play CDN](https://tailwindcss.com/docs/installation/play-cdn)
-- Database: [SQLite3]
+Open: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+## Docker Deployment
+
+### 1. Build and run
+```bash
+docker compose up -d --build
+```
+
+App runs on port `8000`.
+
+### 2. Production env recommendations
+For production in `.env`:
+```env
+DEBUG=False
+ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+CSRF_TRUSTED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+SECURE_SSL_REDIRECT=True
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
+SECURE_HSTS_SECONDS=31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+SECURE_HSTS_PRELOAD=True
+```
+
+## Cloudflare + Nginx Proxy Manager
+
+### Cloudflare
+- SSL/TLS mode: `Full (strict)`
+- DNS record: point your domain/subdomain to your server IP (proxied)
+
+### Nginx Proxy Manager
+- Forward Host: your Docker host (or service host)
+- Forward Port: `8000`
+- Enable:
+  - `Websockets Support`
+  - `Block Common Exploits`
+  - SSL certificate (Let's Encrypt)
+  - `Force SSL`
+
+After enabling SSL, ensure your `.env` has production values (`DEBUG=False`, secure cookie/HSTS flags enabled).
+
+## Backup Notes (SQLite + media)
+For portfolio deployments, backup these paths regularly:
+- `db.sqlite3`
+- `media/`
+
+Example backup:
+```bash
+tar -czf backup-$(date +%F).tar.gz db.sqlite3 media
+```
+
+## Security Checklist
+- Do not commit `.env`
+- Use a strong random `SECRET_KEY`
+- Keep `DEBUG=False` in production
+- Set explicit `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS`
+- Use HTTPS end-to-end with Cloudflare + NPM
+
+## Verification Commands
+```bash
+python manage.py check --deploy
+python manage.py test
+python manage.py collectstatic --noinput
+```

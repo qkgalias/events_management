@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    container_name: events_management_web
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      PORT: "8000"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./media:/app/media
+    restart: unless-stopped
