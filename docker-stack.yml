@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   web:
+    build: .
     image: ${IMAGE_NAME:-events-management:latest}
     environment:
       SECRET_KEY: ${SECRET_KEY}
@@ -21,16 +22,12 @@ services:
       GUNICORN_WORKERS: ${GUNICORN_WORKERS:-3}
     ports:
       - target: 8000
-        published: ${APP_PORT:-8000}
+        published: ${APP_PORT:-8001}
         protocol: tcp
         mode: host
     volumes:
-      - type: bind
-        source: ${DB_FILE_PATH:-/opt/events_management/db.sqlite3}
-        target: /app/db.sqlite3
-      - type: bind
-        source: ${MEDIA_PATH:-/opt/events_management/media}
-        target: /app/media
+      - ems_db:/app/database
+      - ems_media:/app/media
     deploy:
       replicas: 1
       restart_policy:
@@ -43,3 +40,7 @@ services:
       placement:
         constraints:
           - node.role == manager
+
+volumes:
+  ems_db:
+  ems_media:
